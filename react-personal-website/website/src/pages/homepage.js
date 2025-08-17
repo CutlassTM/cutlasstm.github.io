@@ -1,132 +1,434 @@
-import React, { useEffect } from "react";
-import "./homepage.css";
-import AOS from "aos"; // AOS for animations
-import "aos/dist/aos.css"; // Import AOS styles
+// ---------- homepage.js ----------
+import React, { useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import './homepage.css';
 
-const Homepage = () => {
+export default function Homepage() {
+  const canvasRef = useRef(null);
+  const mountedRef = useRef(true);
+  const navigate = useNavigate();
+
   useEffect(() => {
-    AOS.init({ duration: 1000 }); // Initialize AOS
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      document.querySelector(".hero").style.backgroundPositionY = `${scrollY * 0.5}px`;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    // Pixel scaling -> creates '8-bit' blocky look
+    const PIXEL = 4; // 1 logical pixel = PIXEL CSS pixels
+
+    function resize() {
+      const cssW = window.innerWidth;
+      const cssH = window.innerHeight;
+      canvas.style.width = cssW + 'px';
+      canvas.style.height = cssH + 'px';
+      // internal (logical) canvas resolution
+      canvas.width = Math.max(320, Math.floor(cssW / PIXEL));
+      canvas.height = Math.max(200, Math.floor(cssH / PIXEL));
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Game state held in a single object referenced across frames
+    const G = {
+      w: canvas.width,
+      h: canvas.height,
+      groundY: Math.floor(canvas.height * 0.78),
+      ghost: null,
+      cars: [],
+      buildings: [],
+      lamps: [],
+      particles: [],
+      scoreFloat: 0,
+      deaths: 0,
+      spawnTimer: 0,
+      nextSpawn: 1.2 + Math.random() * 0.8,
+      time: 0,
     };
 
-    window.addEventListener("scroll", handleScroll);
+    // Initialize ghost and scenery
+    function initEntities() {
+      G.w = canvas.width;
+      G.h = canvas.height;
+      G.groundY = Math.floor(G.h * 0.78);
+
+      G.ghost = {
+        x: Math.floor(G.w * 0.12),
+        w: Math.max(8, Math.floor(G.w * 0.03)), // small compared to scenery
+        h: Math.max(10, Math.floor(G.h * 0.06)),
+        y: 0,
+        vy: 0,
+        jumping: false,
+        dead: false,
+        respawnTimer: 0,
+      };
+      G.ghost.y = G.groundY - G.ghost.h;
+
+      G.cars = [];
+      G.particles = [];
+      G.buildings = [];
+      G.lamps = [];
+
+      // Create repeating building band (big scenery)
+      let bx = 0;
+      while (bx < G.w * 1.5) {
+        const bw = 12 + Math.floor(Math.random() * 40);
+        const bh = Math.floor(G.h * (0.35 + Math.random() * 0.5));
+        const by = G.groundY - bh - Math.floor(G.h * 0.03);
+        const shade = 40 + Math.floor(Math.random() * 40);
+        G.buildings.push({ x: bx, w: bw, h: bh, y: by, shade });
+        bx += bw + 6 + Math.floor(Math.random() * 40);
+      }
+
+      // street lamps placed across
+      for (let i = 0; i < Math.ceil(G.w / 60); i++) {
+        const lx = i * 60 + 40 + Math.floor(Math.random() * 40);
+        G.lamps.push({ x: lx, y: G.groundY - 28, h: 18 });
+      }
+
+      G.scoreFloat = 0;
+      G.deaths = 0;
+      G.spawnTimer = 0;
+      G.nextSpawn = 0.8 + Math.random() * 1.2;
+      G.time = 0;
+    }
+
+    initEntities();
+
+    // Ghost sprite (8-bit style) drawn from a small pixel map.
+    const ghostMap = [
+      '00111100',
+      '01111110',
+      '11111111',
+      '11111111',
+      '11111111',
+      '10111101',
+      '10011001',
+      '11000011',
+    ];
+
+    // Controls: space / up / click / touch
+    function doJump() {
+      if (G.ghost.dead) return;
+      if (!G.ghost.jumping) {
+        G.ghost.vy = -420; // px / s (logical pixels)
+        G.ghost.jumping = true;
+      }
+    }
+
+    function onKey(e) {
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
+        e.preventDefault();
+        doJump();
+      }
+    }
+
+    function onPointer(e) {
+      // ignore if clicked button (it lives on top so pointer won't reach canvas), otherwise jump
+      doJump();
+    }
+
+    window.addEventListener('keydown', onKey);
+    canvas.addEventListener('pointerdown', onPointer);
+    canvas.addEventListener('touchstart', onPointer);
+
+    // Spawn cars with varied spacing and speed
+    function spawnCar() {
+      const carW = Math.max(8, Math.floor(G.w * (0.03 + Math.random() * 0.03)));
+      const carH = Math.max(6, Math.floor(G.h * (0.03 + Math.random() * 0.02)));
+      const x = G.w + carW + Math.random() * 40;
+      const laneY = G.groundY - carH - 1;
+      const baseSpeed = 110 + Math.random() * 40; // px per second
+      // cars vary by a little, and scale slightly with score to increase difficulty
+      const speed = baseSpeed + Math.min(120, G.scoreFloat * 0.8);
+      G.cars.push({ x, y: laneY, w: carW, h: carH, speed });
+    }
+
+    // Particles for explosion effect
+    function spawnExplosion(cx, cy) {
+      const count = 18;
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 40 + Math.random() * 200;
+        const vx = Math.cos(angle) * speed;
+        const vy = Math.sin(angle) * speed;
+        G.particles.push({ x: cx, y: cy, vx, vy, life: 0.6 + Math.random() * 0.6 });
+      }
+    }
+
+    // Update logic (dt in seconds)
+    function update(dt) {
+      G.time += dt;
+      // update canvas-derived sizes
+      G.w = canvas.width;
+      G.h = canvas.height;
+      G.groundY = Math.floor(G.h * 0.78);
+
+      // physics constants
+      const gravity = 1800; // px/s^2 (logical px)
+
+      // ghost physics
+      if (!G.ghost.dead) {
+        if (G.ghost.jumping) {
+          G.ghost.vy += gravity * dt;
+          G.ghost.y += G.ghost.vy * dt;
+          if (G.ghost.y >= G.groundY - G.ghost.h) {
+            G.ghost.y = G.groundY - G.ghost.h;
+            G.ghost.vy = 0;
+            G.ghost.jumping = false;
+          }
+        }
+      } else {
+        // respawn timer
+        G.ghost.respawnTimer -= dt;
+        if (G.ghost.respawnTimer <= 0) {
+          G.ghost.dead = false;
+          G.ghost.jumping = false;
+          G.ghost.vy = 0;
+          G.ghost.y = G.groundY - G.ghost.h;
+          // remove any cars that were overlapping the ghost to avoid instant death
+          G.cars = G.cars.filter(car => car.x > G.ghost.x + G.ghost.w + 6);
+        }
+      }
+
+      // update cars
+      for (let i = G.cars.length - 1; i >= 0; i--) {
+        const car = G.cars[i];
+        car.x -= car.speed * dt;
+        // remove if off left
+        if (car.x + car.w < -20) G.cars.splice(i, 1);
+      }
+
+      // spawn timer
+      G.spawnTimer += dt;
+      if (!G.ghost.dead && G.spawnTimer >= G.nextSpawn) {
+        spawnCar();
+        G.spawnTimer = 0;
+        // spacing changes slightly with time
+        G.nextSpawn = 0.8 + Math.random() * 1.6 - Math.min(0.7, G.time * 0.01);
+        G.nextSpawn = Math.max(0.5, G.nextSpawn);
+      }
+
+      // update background buildings and recycle
+      const buildingSpeed = 30 + Math.min(60, G.time * 0.2);
+      for (let i = G.buildings.length - 1; i >= 0; i--) {
+        const b = G.buildings[i];
+        b.x -= buildingSpeed * dt * 0.25; // slow parallax
+        if (b.x + b.w < -60) {
+          G.buildings.splice(i, 1);
+        }
+      }
+      // ensure there are enough buildings to fill
+      if (G.buildings.length < Math.ceil(G.w / 40) + 6) {
+        let lastX = G.buildings.length ? G.buildings[G.buildings.length - 1].x + G.buildings[G.buildings.length - 1].w + 6 : 0;
+        while (lastX < G.w * 1.2) {
+          const bw = 12 + Math.floor(Math.random() * 40);
+          const bh = Math.floor(G.h * (0.35 + Math.random() * 0.5));
+          const by = G.groundY - bh - Math.floor(G.h * 0.03);
+          const shade = 40 + Math.floor(Math.random() * 40);
+          G.buildings.push({ x: lastX, w: bw, h: bh, y: by, shade });
+          lastX += bw + 6 + Math.floor(Math.random() * 40);
+        }
+      }
+
+      // lamps move with background
+      for (let i = G.lamps.length - 1; i >= 0; i--) {
+        G.lamps[i].x -= (buildingSpeed * dt * 0.65);
+        if (G.lamps[i].x < -40) G.lamps.splice(i, 1);
+      }
+      while (G.lamps.length < Math.ceil(G.w / 60) + 2) {
+        const lx = (G.lamps.length + 1) * 60 + Math.random() * 30 + G.w;
+        G.lamps.push({ x: lx, y: G.groundY - 28, h: 18 });
+      }
+
+      // particles update
+      for (let i = G.particles.length - 1; i >= 0; i--) {
+        const p = G.particles[i];
+        p.life -= dt;
+        if (p.life <= 0) {
+          G.particles.splice(i, 1);
+          continue;
+        }
+        // simple physics
+        p.vy += 1000 * dt; // gravity on particles
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+      }
+
+      // score update (smooth)
+      G.scoreFloat += dt * 10; // points per second
+
+      // collision detection
+      if (!G.ghost.dead) {
+        const g = G.ghost;
+        for (const car of G.cars) {
+          if (
+            g.x < car.x + car.w - 1 &&
+            g.x + g.w - 1 > car.x &&
+            g.y < car.y + car.h - 1 &&
+            g.y + g.h - 1 > car.y
+          ) {
+            // collision!
+            G.ghost.dead = true;
+            G.ghost.respawnTimer = 0.8; // seconds until respawn
+            G.deaths += 1;
+            // spawn explosion at center of ghost
+            spawnExplosion(g.x + g.w / 2, g.y + g.h / 2);
+            break;
+          }
+        }
+      }
+    }
+
+    // Draw helpers
+    function draw() {
+      // clear with dark grey
+      ctx.fillStyle = '#1e1e1e';
+      ctx.fillRect(0, 0, G.w, G.h);
+
+      // city buildings (back)
+      for (const b of G.buildings) {
+        const s = Math.min(255, Math.max(10, b.shade));
+        ctx.fillStyle = `rgb(${s},${s},${s})`;
+        ctx.fillRect(Math.floor(b.x), Math.floor(b.y), Math.floor(b.w), Math.floor(b.h));
+        // windows as small pixels
+        const winW = 2;
+        for (let wx = Math.floor(b.x) + 2; wx < b.x + b.w - 2; wx += 4) {
+          for (let wy = Math.floor(b.y) + 4; wy < b.y + b.h - 6; wy += 6) {
+            if (Math.random() > 0.6) continue;
+            ctx.fillStyle = 'rgba(230,230,230,0.95)';
+            ctx.fillRect(wx, wy, winW, 2);
+          }
+        }
+      }
+
+      // mid layer street lamps
+      for (const l of G.lamps) {
+        ctx.fillStyle = '#0e0e0e';
+        const lx = Math.floor(l.x);
+        const ly = Math.floor(l.y);
+        ctx.fillRect(lx, ly, 1, l.h);
+        // lamp head
+        ctx.fillStyle = '#111';
+        ctx.fillRect(lx - 2, ly - 2, 5, 3);
+      }
+
+      // road
+      ctx.fillStyle = '#0b0b0b';
+      const roadY = G.groundY;
+      ctx.fillRect(0, roadY, G.w, G.h - roadY);
+
+      // road stripes (center dashed)
+      const stripeH = 2;
+      const stripeW = Math.max(2, Math.floor(G.w * 0.03));
+      ctx.fillStyle = '#e8e8e8';
+      const dashGap = 8;
+      for (let sx = 0; sx < G.w + stripeW; sx += stripeW + dashGap) {
+        ctx.fillRect(sx + (Math.floor((G.time * 40) % (stripeW + dashGap)) * -1), roadY + Math.floor((G.h - roadY) / 2) - 1, stripeW, stripeH);
+      }
+
+      // cars (foreground)
+      for (const car of G.cars) {
+        const cx = Math.floor(car.x);
+        const cy = Math.floor(car.y);
+        // body
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx, cy, Math.floor(car.w), Math.floor(car.h));
+        // windows - darker
+        ctx.fillStyle = '#a6a6a6';
+        ctx.fillRect(cx + 2, cy + 1, Math.max(2, Math.floor(car.w / 2.6)), Math.max(1, Math.floor(car.h / 2.8)));
+        // tires
+        ctx.fillStyle = '#0b0b0b';
+        ctx.fillRect(cx + 1, cy + car.h - 1, 2, 1);
+        ctx.fillRect(cx + car.w - 3, cy + car.h - 1, 2, 1);
+      }
+
+      // particles (explosion)
+      for (const p of G.particles) {
+        const alpha = Math.max(0, Math.min(1, p.life / 1.0));
+        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.fillRect(Math.floor(p.x), Math.floor(p.y), 2, 2);
+      }
+
+      // ghost - draw as small 8-bit sprite and a soft shadow
+      const g = G.ghost;
+      if (!g.dead) {
+        // shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
+        ctx.fillRect(Math.floor(g.x), Math.floor(G.groundY - 2), g.w, 1);
+
+        // draw scaled ghostMap to ghost.w / ghostMap[0].length pixels per cell
+        const mapW = ghostMap[0].length;
+        const mapH = ghostMap.length;
+        const cellW = Math.max(1, Math.floor(g.w / mapW));
+        const cellH = Math.max(1, Math.floor(g.h / mapH));
+        const startX = Math.floor(g.x - (mapW * cellW - g.w) / 2);
+        const startY = Math.floor(g.y);
+        for (let ry = 0; ry < mapH; ry++) {
+          for (let rx = 0; rx < mapW; rx++) {
+            if (ghostMap[ry][rx] === '1') {
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(startX + rx * cellW, startY + ry * cellH, cellW, cellH);
+            }
+          }
+        }
+        // small outline pixels (single darker pixels)
+        ctx.fillStyle = '#bfbfbf';
+        ctx.fillRect(startX, startY + 1, 1, 1);
+      }
+
+      // HUD: small text top-left (score and deaths) - keep tiny and unobtrusive
+      const score = Math.floor(G.scoreFloat);
+      ctx.font = `${Math.max(8, Math.floor(G.h * 0.03))}px 'Press Start 2P', monospace`;
+      ctx.fillStyle = '#f5f5f5';
+      ctx.textBaseline = 'top';
+      ctx.fillText(`SCORE: ${score}`, 6, 6);
+      ctx.fillText(`DEATHS: ${G.deaths}`, 6, 6 + Math.max(10, Math.floor(G.h * 0.03)) + 4);
+
+      // small top-left death animation text when dead
+      if (G.ghost.dead) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText('BOOM!', 6, 6 + Math.max(10, Math.floor(G.h * 0.03)) * 2 + 8);
+      }
+    }
+
+    // main loop with requestAnimationFrame
+    let last = performance.now();
+    let raf = null;
+    function tick(now) {
+      const dtMS = now - last;
+      last = now;
+      const dt = Math.min(0.05, dtMS / 1000);
+      update(dt);
+      draw();
+      raf = requestAnimationFrame(tick);
+    }
+
+    raf = requestAnimationFrame(tick);
+
+    // cleanup
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      mountedRef.current = false;
+      window.removeEventListener('resize', resize);
+      window.removeEventListener('keydown', onKey);
+      canvas.removeEventListener('pointerdown', onPointer);
+      canvas.removeEventListener('touchstart', onPointer);
+      cancelAnimationFrame(raf);
     };
   }, []);
 
   return (
-    <>
-      <div className="container">
-        {/* Hero Section with Parallax Effect */}
-        <section className="hero">
-          <div className="hero-overlay"></div>
-          <div className="hero-content">
-            <h1 className="hero-title">Unleash Your Creativity</h1>
-            <p className="hero-subtitle">Innovative projects, built to inspire</p>
-            <button
-              onClick={() => document.getElementById("portfolio").scrollIntoView({ behavior: "smooth" })}
-              className="hero-button"
-            >
-              Explore Now
-            </button>
-          </div>
-        </section>
+    <div className="game-wrapper">
+      <canvas ref={canvasRef} className="game-canvas" />
 
-        {/* About Section with Reveal Animation */}
-        <section className="about-section" data-aos="fade-up">
-          <h2 className="section-title">About Me</h2>
-          <p className="about-text">
-            I am a software architect, focusing on building immersive and cutting-edge solutions. My passion lies in blending technology and creativity to deliver unparalleled user experiences.
-          </p>
-        </section>
-
-        {/* Portfolio Section with Interactive Cards */}
-        <section id="portfolio" className="portfolio-section">
-          <h2 className="section-title">Featured Projects</h2>
-          <div className="projects-container">
-            {/* Existing Projects */}
-            <div className="project-card" data-aos="fade-up">
-              <img src="path/to/image1.jpg" alt="VR Platform" className="project-image" />
-              <h3>Interactive VR Platform</h3>
-              <p>Virtual worlds with endless possibilities. Fully immersive VR experiences for education and entertainment.</p>
-            </div>
-            <div className="project-card" data-aos="fade-up">
-              <img src="path/to/image2.jpg" alt="Web Apps" className="project-image" />
-              <h3>Next-Gen Web Applications</h3>
-              <p>Modern, responsive web apps utilizing React and cloud-based backends for ultra-fast performance.</p>
-            </div>
-            <div className="project-card" data-aos="fade-up">
-              <img src="path/to/image3.jpg" alt="Mobile App" className="project-image" />
-              <h3>Cross-Platform Mobile App</h3>
-              <p>Designed a multi-functional mobile app, bringing powerful productivity tools to your fingertips.</p>
-            </div>
-            {/* New Projects */}
-            <div className="project-card" data-aos="fade-up">
-              <img src="path/to/image4.jpg" alt="AI Chatbot" className="project-image" />
-              <h3>AI-Powered Chatbot</h3>
-              <p>An intelligent chatbot that enhances customer support experiences through natural language processing.</p>
-            </div>
-            <div className="project-card" data-aos="fade-up">
-              <img src="path/to/image5.jpg" alt="E-Commerce Site" className="project-image" />
-              <h3>E-Commerce Platform</h3>
-              <p>A feature-rich online store with a user-friendly interface and seamless checkout experience.</p>
-            </div>
-            <div className="project-card" data-aos="fade-up">
-              <img src="path/to/image6.jpg" alt="Data Visualization Tool" className="project-image" />
-              <h3>Data Visualization Dashboard</h3>
-              <p>A powerful tool for visualizing complex data sets, enabling informed decision-making.</p>
-            </div>
-          </div>
-        </section>
-
-        {/* Extra Features Section */}
-        <section className="features-section" data-aos="fade-up">
-          <h2 className="section-title">Skills & Technologies</h2>
-          <ul className="features-list">
-            <li>🔹 React & Redux</li>
-            <li>🔹 Node.js & Express</li>
-            <li>🔹 MongoDB & SQL Databases</li>
-            <li>🔹 VR Development (HTC Vive)</li>
-            <li>🔹 Cloud Services (AWS, Azure)</li>
-            <li>🔹 UI/UX Design Principles</li>
-          </ul>
-        </section>
-
-        {/* Contact Section */}
-        <section className="contact-section" data-aos="fade-up">
-          <h2 className="section-title">Get in Touch</h2>
-          <p>If you're interested in collaborating or have any questions, feel free to reach out!</p>
-          <button className="contact-button" onClick={() => alert("Contact form coming soon!")}>
-            Contact Me
-          </button>
-        </section>
-
-        {/* Testimonials Section */}
-        <section className="testimonials-section" data-aos="fade-up">
-          <h2 className="section-title">What People Say</h2>
-          <div className="testimonial-card">
-            <p>"Sanraj's work is outstanding! His creativity knows no bounds." - Client A</p>
-          </div>
-          <div className="testimonial-card">
-            <p>"He brought our vision to life with innovative solutions!" - Client B</p>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="footer">
-          <p>© 2024 Sanraj. Elevating Possibilities. All Rights Reserved.</p>
-          <div className="social-icons">
-            <button className="social-icon" onClick={() => alert("Facebook link goes here!")}>FB</button>
-            <button className="social-icon" onClick={() => alert("Twitter link goes here!")}>TW</button>
-            <button className="social-icon" onClick={() => alert("Instagram link goes here!")}>IG</button>
-          </div>
-        </footer>
-      </div>
-    </>
+      <button
+        className="enter-button"
+        onClick={() => {
+          // Correct way using react-router navigation
+          navigate('/experience');
+        }}
+      >
+        Enter Portfolio
+      </button>
+    </div>
   );
-};
-
-export default Homepage;
+}

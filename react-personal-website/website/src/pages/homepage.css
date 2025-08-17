@@ -1,229 +1,81 @@
-/* Global Styles */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: "Roboto", sans-serif;
-  background-color: #f0f4ff;
-  color: #333;
-  scroll-behavior: smooth;
+/* ---------- homepage.css ---------- */
+/* Import an 8-bit / retro font */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root {
+  --bg: #1e1e1e; /* dark grey background */
+  --road: #0b0b0b; /* road black */
+  --accent: #f5f5f5; /* white-ish accents */
+  --muted: #9a9a9a; /* muted grey */
 }
 
-/* Container */
-.container {
-  width: 100%;
-  overflow-x: hidden;
-}
-
-/* Hero Section with Parallax Effect */
-.hero {
-  height: 100vh;
-  background: url('https://cdn.razerzone.com/sg-en/2022/Homepage/homepage-banner-desktop.jpg') no-repeat center center;
-  background-size: cover;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-  transition: background-position 0.5s;
-}
-
-.hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+html, body, #root {
   height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  animation: overlayAnimation 2s ease-in-out forwards;
-}
-
-.hero-content {
-  z-index: 1;
-  text-align: center;
-}
-
-.hero-title {
-  font-size: 5rem;
-  color: #1e90ff;
-  text-transform: uppercase;
-  font-weight: 800;
-  margin-bottom: 20px;
-  letter-spacing: 5px;
-  animation: textPop 1.5s ease-out forwards;
-}
-
-.hero-subtitle {
-  font-size: 1.5rem;
-  color: #fff;
-  margin-bottom: 30px;
-  animation: fadeIn 2s ease-out;
-}
-
-.hero-button {
-  font-size: 1.2rem;
-  padding: 15px 40px;
-  background-color: #1e90ff;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 8px;
-  transition: background-color 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.hero-button:hover {
-  background-color: #1c86ee;
-}
-
-/* About Section */
-.about-section {
-  padding: 80px 20px;
-  text-align: center;
-  background-color: #e8f0ff;
-}
-
-.section-title {
-  font-size: 2.5rem;
-  color: #1e90ff;
-  margin-bottom: 40px;
-}
-
-.about-text {
-  font-size: 1.2rem;
-  color: #333;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-/* Portfolio Section with Interactive Cards */
-.portfolio-section {
-  padding: 80px 20px;
-  background-color: #fff;
-  text-align: center;
-}
-
-.projects-container {
-  display: flex;
-  justify-content: space-around;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.project-card {
-  background-color: #f0f4ff;
-  padding: 40px;
-  border-radius: 15px;
-  width: 30%;
-  text-align: left;
-  color: #333;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  transition: transform 0.5s, box-shadow 0.5s;
-  perspective: 1000px;
-  position: relative;
-}
-
-.project-image {
-  width: 100%;
-  height: auto;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
-
-.project-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 12px 24px rgba(30, 144, 255, 0.5);
-}
-
-/* Testimonials Section */
-.testimonials-section {
-  padding: 80px 20px;
-  background-color: #e8f0ff;
-  text-align: center;
-}
-
-.testimonial-card {
-  background-color: #f0f4ff;
-  padding: 20px;
-  border-radius: 8px;
-  margin: 20px;
-  animation: fadeIn 1s ease;
-}
-
-/* Footer */
-.footer {
-  padding: 40px 20px;
-  background-color: #1e90ff;
-  text-align: center;
-  color: #fff;
-}
-
-.footer p {
   margin: 0;
+  background: var(--bg);
+  font-family: 'Press Start 2P', monospace;
 }
 
-.social-icons {
-  margin-top: 20px;
+.game-wrapper {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
 }
 
-.social-icon {
-  color: #fff;
-  text-decoration: none;
-  margin: 0 10px;
-  font-size: 1.5rem;
+.game-canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  image-rendering: pixelated; /* preserve blocky pixels */
+  image-rendering: crisp-edges;
 }
 
-/* Keyframes */
-@keyframes overlayAnimation {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes textPop {
-  0% { transform: scale(0); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
-}
-
-@keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-/* Features Section */
-.features-section {
-  padding: 80px 20px;
-  background-color: #fff;
-  text-align: center;
-}
-
-.features-list {
-  list-style-type: none;
-  padding: 0;
-  font-size: 1.2rem;
-  color: #333;
-}
-
-.features-list li {
-  margin: 10px 0;
-}
-
-/* Contact Section */
-.contact-section {
-  padding: 80px 20px;
-  background-color: #e8f0ff;
-  text-align: center;
-}
-
-.contact-button {
-  font-size: 1.2rem;
-  padding: 15px 30px;
-  background-color: #1e90ff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
+.enter-button {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  background: rgba(15,15,15,0.6);
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  padding: 12px 20px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: none;
+  outline: none;
+  border-radius: 0; /* 8-bit look: no rounding */
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.45);
+  opacity: 0.95;
 }
 
-.contact-button:hover {
-  background-color: #1c86ee;
+.enter-button:hover {
+  background: rgba(245,245,245,0.06);
+  color: #ffffff;
+}
+
+/* keep the button looking monochrome while still tactile */
+
+/* Make HUD small and unobtrusive on top-left if you need an HTML fallback */
+.hud {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  color: var(--accent);
+  font-size: 11px;
+  font-family: 'Press Start 2P', monospace;
+  z-index: 12;
+}
+
+/* Full-page focus and accessibility tweaks */
+.enter-button:focus {
+  outline: 2px dashed rgba(255,255,255,0.2);
+}
+
+/* Small screens: scale down font-size to keep button neat */
+@media (max-width: 600px) {
+  .enter-button { font-size: 10px; padding: 10px 16px; }
 }
