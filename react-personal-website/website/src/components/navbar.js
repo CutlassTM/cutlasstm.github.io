@@ -1,50 +1,60 @@
-// Navbar.js
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Stack,
-  Tab,
-  Tabs,
   IconButton,
   Drawer,
   List,
   ListItem,
+  ListItemIcon,
   ListItemText,
+  Tooltip,
   useMediaQuery,
   useTheme,
+  SvgIcon,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import HomeIcon from "@mui/icons-material/Home";
 import { Link, useLocation } from "react-router-dom";
 import { PATH_WEBPAGE } from "../routes/paths";
 
-/** Map paths -> tab index */
+// Map paths -> tab index
 const getTabIndex = (path) => {
   if (path.startsWith(PATH_WEBPAGE.general.experience)) return 1;
   if (path.startsWith(PATH_WEBPAGE.general.playground)) return 2;
-  if (path.startsWith(PATH_WEBPAGE.general.contact)) return 3;
   return 0; // Home
 };
+
+// Playground icon
+const PlaygroundSlideIcon = (props) => (
+  <SvgIcon viewBox="0 0 24 24" {...props}>
+    <path d="M6 3v10" stroke="currentColor" strokeWidth="1" fill="none" />
+    <path d="M8 3v10" stroke="currentColor" strokeWidth="1" fill="none" />
+    <path d="M6 7h4" stroke="currentColor" strokeWidth="1" fill="none" />
+    <path d="M10 13c2-1 6-3 9-6v3c-3 3-6 5-8 6-1 0-2 0-3-1" stroke="currentColor" strokeWidth="1" fill="none" />
+    <path d="M3 20h18v1H3z" fill="currentColor" />
+  </SvgIcon>
+);
+
+// Experience icon
+const ExperienceEIcon = (props) => (
+  <SvgIcon viewBox="0 0 24 24" {...props}>
+    <rect x="3" y="4" width="14" height="16" rx="0" ry="0" fill="currentColor" />
+    <rect x="6" y="7" width="8" height="2" fill="#000" />
+    <rect x="6" y="11" width="8" height="2" fill="#000" />
+    <rect x="6" y="15" width="8" height="2" fill="#000" />
+  </SvgIcon>
+);
 
 const Navbar = () => {
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  // Only render on experience / playground / contact
-  const visible = useMemo(() => {
-    const allowed = [
-      PATH_WEBPAGE.general.experience,
-      PATH_WEBPAGE.general.playground,
-      PATH_WEBPAGE.general.contact,
-    ];
-    return allowed.some((p) => location.pathname.startsWith(p));
-  }, [location.pathname]);
-
   const [value, setValue] = useState(getTabIndex(location.pathname));
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Keep selected tab in sync with the URL
   useEffect(() => {
     setValue(getTabIndex(location.pathname));
   }, [location.pathname]);
@@ -58,174 +68,125 @@ const Navbar = () => {
   const toggleDrawer = () => setMobileOpen((s) => !s);
 
   const items = [
-    { label: "Home", key: "home" },
-    { label: "Experience", key: "experience" },
-    { label: "Playground", key: "playground" },
-    { label: "Contact", key: "contact" },
+    { label: "Home", key: "home", icon: <HomeIcon fontSize="small" /> },
+    {
+      label: "Experience",
+      key: "experience",
+      icon: <ExperienceEIcon fontSize="small" />,
+    },
+    {
+      label: "Playground",
+      key: "playground",
+      icon: <PlaygroundSlideIcon fontSize="small" />,
+    },
   ];
 
-  if (!visible) return null;
+  // Wrapper sx for desktop/mobile alignment toggle
+  const wrapperSx = isMobile
+    ? {
+        position: "fixed",
+        top: 12,
+        right: 12,
+        zIndex: 1300,
+        pointerEvents: "none",
+        transform: "none",
+      }
+    : {
+        position: "fixed",
+        top: "50%",
+        right: 12,
+        transform: "translateY(-50%)",
+        zIndex: 1300,
+        pointerEvents: "none",
+      };
 
   return (
-    <Box
-      component="nav"
-      sx={{
-        position: "fixed",
-        top: 10,
-        left: 0,
-        width: "100vw",
-        zIndex: 1100,
-        pointerEvents: "none",
-      }}
-    >
+    <Box component="nav" sx={wrapperSx}>
       <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="center"
+        direction="column"
+        spacing={1}
         sx={{ pointerEvents: "none" }}
+        alignItems="center"
       >
         <Box
-          // 8-bit pixel card
           sx={{
             pointerEvents: "auto",
-            px: 1.5,
-            py: 0.5,
-            bgcolor: scrolled ? "rgba(12,12,12,0.9)" : "rgba(12,12,12,0.7)",
-            color: "#fff",
-            border: "2px solid #1f1f1f",
-            boxShadow:
-              "0 0 0 2px #000 inset, 0 0 0 0 rgba(0,0,0,0.0), 0 2px 0 0 #000",
-            borderRadius: 0,
-            transform: "translateX(6vw)",
-            transition: "background-color 200ms ease",
-            height: 44,
             display: "flex",
-            alignItems: "center",
+            flexDirection: "column",
             gap: 1,
+            bgcolor: scrolled ? "rgba(15,15,15,0.95)" : "rgba(15,15,15,0.85)",
+            px: 1,
+            py: 1,
+            border: "3px solid #2b2b2b",
+            boxShadow: "6px 6px 0 rgba(0,0,0,0.6)",
+            borderRadius: 0,
+            alignItems: "center",
           }}
         >
           {!isMobile ? (
-            <Tabs
-              value={value}
-              onChange={(_, nv) => setValue(nv)}
-              aria-label="site navigation"
-              TabIndicatorProps={{ style: { height: 4 } }}
+            items.map((it, idx) => {
+              const active = value === idx;
+              return (
+                <Tooltip key={it.key} title={it.label} placement="left">
+                  <IconButton
+                    component={Link}
+                    to={PATH_WEBPAGE.general[it.key]}
+                    aria-label={it.label}
+                    onClick={() => setValue(idx)}
+                    disableRipple
+                    sx={{
+                      width: 48,
+                      height: 48,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      bgcolor: active ? "#0b0b0b" : "transparent",
+                      color: active ? "#fff" : "rgba(245,245,245,0.85)",
+                      border: active ? "2px solid #000" : "2px solid transparent",
+                      boxShadow: active
+                        ? "0 0 0 2px #fff inset, 0 0 0 2px #000"
+                        : "none",
+                      fontFamily: '"Press Start 2P", monospace',
+                      borderRadius: 0,
+                      px: 0.5,
+                      "&:hover": {
+                        bgcolor: "#111",
+                        color: "#fff",
+                        transform: "translateX(-2px)",
+                      },
+                    }}
+                  >
+                    {idx === 1 ? (
+                      <ExperienceEIcon sx={{ width: 22, height: 22, color: active ? "#7fffd4" : "inherit" }} />
+                    ) : idx === 2 ? (
+                      <PlaygroundSlideIcon sx={{ width: 22, height: 22, color: active ? "#7fffd4" : "inherit" }} />
+                    ) : (
+                      <HomeIcon sx={{ width: 20, height: 20, color: active ? "#7fffd4" : "inherit" }} />
+                    )}
+                  </IconButton>
+                </Tooltip>
+              );
+            })
+          ) : (
+            <IconButton
+              aria-label="menu"
+              onClick={toggleDrawer}
+              edge="start"
               sx={{
-                minHeight: 0,
-                "& .MuiTabs-flexContainer": {
-                  gap: 0.5,
-                },
-                "& .MuiTabs-indicator": {
-                  background: "#fff",
-                  boxShadow: "0 0 0 2px #000",
-                },
+                color: "#fff",
+                border: "2px solid #000",
+                boxShadow: "0 0 0 2px #fff inset, 0 0 0 2px #000",
+                borderRadius: 0,
+                width: 44,
+                height: 44,
+                background: scrolled ? "#0b0b0b" : "transparent",
               }}
             >
-              {items.map((it, idx) => (
-                <Tab
-                  key={it.key}
-                  label={it.label}
-                  component={Link}
-                  to={PATH_WEBPAGE.general[it.key]}
-                  disableRipple
-                  sx={{
-                    minHeight: 0,
-                    minWidth: 0,
-                    px: 1.25,
-                    py: 0.25,
-                    fontFamily: '"Press Start 2P", monospace',
-                    fontSize: 11,
-                    lineHeight: 1.2,
-                    textTransform: "none",
-                    letterSpacing: 0,
-                    color: value === idx ? "#fff" : "rgba(255,255,255,0.75)",
-                    "&.Mui-selected": {
-                      color: "#fff",
-                      textShadow: "0 0 0 #000",
-                    },
-                    "&:hover": { color: "#fff", opacity: 0.95 },
-                    border: "2px solid transparent",
-                    ...(value === idx && {
-                      borderColor: "#000",
-                      boxShadow: "0 0 0 2px #fff inset, 0 0 0 2px #000",
-                    }),
-                    borderRadius: 0,
-                  }}
-                />
-              ))}
-            </Tabs>
-          ) : (
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <IconButton
-                aria-label="menu"
-                onClick={toggleDrawer}
-                edge="start"
-                sx={{
-                  color: "#fff",
-                  border: "2px solid #000",
-                  boxShadow: "0 0 0 2px #fff inset, 0 0 0 2px #000",
-                  borderRadius: 0,
-                  width: 36,
-                  height: 36,
-                }}
-              >
-                <MenuIcon fontSize="small" />
-              </IconButton>
-
-              <Drawer
-                anchor="left"
-                open={mobileOpen}
-                onClose={toggleDrawer}
-                PaperProps={{
-                  sx: {
-                    bgcolor: "#0d0d0d",
-                    color: "#fff",
-                    width: 260,
-                    borderRight: "2px solid #000",
-                    boxShadow: "0 0 0 2px #fff inset, 0 0 0 2px #000",
-                    borderRadius: 0,
-                  },
-                }}
-              >
-                <List sx={{ py: 0.5 }}>
-                  {items.map((it, idx) => {
-                    const active = value === idx;
-                    return (
-                      <ListItem
-                        key={it.key}
-                        button
-                        component={Link}
-                        to={PATH_WEBPAGE.general[it.key]}
-                        onClick={() => {
-                          setValue(idx);
-                          toggleDrawer();
-                        }}
-                        sx={{
-                          borderBottom: "2px solid #000",
-                          bgcolor: active ? "#111" : "transparent",
-                          "&:hover": { bgcolor: "#161616" },
-                          px: 2,
-                          py: 1.25,
-                          borderRadius: 0,
-                        }}
-                      >
-                        <ListItemText
-                          primary={it.label}
-                          primaryTypographyProps={{
-                            fontFamily: '"Press Start 2P", monospace',
-                            fontSize: 12,
-                          }}
-                        />
-                      </ListItem>
-                    );
-                  })}
-                </List>
-              </Drawer>
-            </Stack>
+              <MenuIcon fontSize="small" />
+            </IconButton>
           )}
 
-          {/* Optional: tiny GitHub icon on the right (kept minimal) */}
-          <Box sx={{ ml: 1, display: "flex", alignItems: "center" }}>
+          <Box sx={{ mt: 0.5 }}>
             <Link
               to="https://github.com/CutlassTM"
               target="_blank"
@@ -235,18 +196,65 @@ const Navbar = () => {
               <img
                 src="/githubIcon.png"
                 alt="GitHub"
-                width={20}
-                height={20}
-                style={{
-                  // filter: "invert(1)",
-                  // imageRendering: "pixelated",
-                  cursor: "pointer",
-                }}
+                width={18}
+                height={18}
+                style={{ cursor: "pointer" }}
               />
             </Link>
           </Box>
         </Box>
       </Stack>
+
+      <Drawer
+        anchor="right"
+        open={mobileOpen}
+        onClose={toggleDrawer}
+        PaperProps={{
+          sx: {
+            bgcolor: "#0d0d0d",
+            color: "#fff",
+            width: 260,
+            borderLeft: "2px solid #000",
+            boxShadow: "0 0 0 2px #fff inset, 0 0 0 2px #000",
+            borderRadius: 0,
+          },
+        }}
+      >
+        <List sx={{ py: 1 }}>
+          {items.map((it, idx) => {
+            const active = value === idx;
+            return (
+              <ListItem
+                key={it.key}
+                button
+                component={Link}
+                to={PATH_WEBPAGE.general[it.key]}
+                onClick={() => {
+                  setValue(idx);
+                  toggleDrawer();
+                }}
+                sx={{
+                  borderBottom: "2px solid #000",
+                  bgcolor: active ? "#111" : "transparent",
+                  "&:hover": { bgcolor: "#161616" },
+                  px: 2,
+                  py: 1.25,
+                  borderRadius: 0,
+                }}
+              >
+                <ListItemIcon sx={{ color: active ? "#7fffd4" : "inherit" }}>{it.icon}</ListItemIcon>
+                <ListItemText
+                  primary={it.label}
+                  primaryTypographyProps={{
+                    fontFamily: '"Press Start 2P", monospace',
+                    fontSize: 12,
+                  }}
+                />
+              </ListItem>
+            );
+          })}
+        </List>
+      </Drawer>
     </Box>
   );
 };

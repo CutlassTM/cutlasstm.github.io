@@ -1,67 +1,100 @@
-// ---------- homepage.js ----------
-import React, { useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './homepage.css';
+import React, { useState, useRef, useEffect } from "react";
+import styles from "./homepage.module.css";
+import emailjs from "emailjs-com";
+
+const SOCIALS = [
+  {
+    id: "github",
+    label: "GitHub",
+    href: "https://github.com/CutlassTM",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+        <path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.1c-3.3.7-4-1.6-4-1.6-.5-1.3-1.2-1.6-1.2-1.6-1-.7.1-.7.1-.7 1.1.1 1.7 1.1 1.7 1.1 1 .1 1.6-.8 1.8-1.2-.9-.1-1.9-.5-1.9-2.4 0-.5.2-.9.5-1.2-.1-.2-.5-1 .1-2 0 0 .4-.1 1.3.5.4-.1.9-.1 1.4-.1s1 .1 1.4.1c.9-.6 1.3-.5 1.3-.5.6 1.1.2 1.9.1 2 .3.3.5.7.5 1.2 0 1.9-1 2.3-1.9 2.4.4.3.8.9.8 1.9v2.8c0 .4.2.7.8.6A12 12 0 0 0 12 .5z" fill="currentColor" />
+      </svg>
+    ),
+  },
+  {
+    id: "linkedin",
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/sanraj-jp",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+        <path d="M4.98 3.5a2.5 2.5 0 1 1-.001 5.001A2.5 2.5 0 0 1 4.98 3.5zM3 9h4v12H3zM9 9h3.8v1.6h.1c.5-.9 1.9-1.8 3.9-1.8 4.2 0 5 2.8 5 6.4V21h-4v-5.1c0-1.3 0-3-1.8-3-1.8 0-2 1.4-2 2.9V21H9V9z" fill="currentColor" />
+      </svg>
+    ),
+  },
+  {
+    id: "instagram",
+    label: "Instagram",
+    href: "https://www.instagram.com/nuusanraj",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+        <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm5 6.5A4.5 4.5 0 1 0 16.5 13 4.5 4.5 0 0 0 12 8.5zM18.5 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" fill="currentColor" />
+      </svg>
+    ),
+  },
+  {
+    id: "tiktok",
+    label: "TikTok",
+    href: "https://www.tiktok.com/@nuusanraj",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+        <path d="M12 3v9.5a3.5 3.5 0 1 1-1.5-2.8V7.2L17 9V6.2a5 5 0 0 1-5-3.2H12z" fill="currentColor" />
+      </svg>
+    ),
+  },
+];
 
 export default function Homepage() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [generalError, setGeneralError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [botField, setBotField] = useState("");
+
   const canvasRef = useRef(null);
-  const mountedRef = useRef(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
 
-    // Pixel scaling -> creates '8-bit' blocky look
-    const PIXEL = 4; // 1 logical pixel = PIXEL CSS pixels
+    // Pixel scaling
+    const PIXEL = 4;
 
     function resize() {
       const cssW = window.innerWidth;
       const cssH = window.innerHeight;
-      canvas.style.width = cssW + 'px';
-      canvas.style.height = cssH + 'px';
-      // internal (logical) canvas resolution
+      canvas.style.width = cssW + "px";
+      canvas.style.height = cssH + "px";
       canvas.width = Math.max(320, Math.floor(cssW / PIXEL));
       canvas.height = Math.max(200, Math.floor(cssH / PIXEL));
     }
 
     resize();
-    window.addEventListener('resize', resize);
+    window.addEventListener("resize", resize);
 
-    // Game state held in a single object referenced across frames
+    // Scene state
     const G = {
       w: canvas.width,
       h: canvas.height,
       groundY: Math.floor(canvas.height * 0.78),
-      ghost: null,
       cars: [],
       buildings: [],
       lamps: [],
       particles: [],
-      scoreFloat: 0,
-      deaths: 0,
-      spawnTimer: 0,
-      nextSpawn: 1.2 + Math.random() * 0.8,
       time: 0,
+      spawnTimer: 0,
+      nextSpawn: 0.8 + Math.random() * 1.2,
     };
 
-    // Initialize ghost and scenery
     function initEntities() {
       G.w = canvas.width;
       G.h = canvas.height;
       G.groundY = Math.floor(G.h * 0.78);
-
-      G.ghost = {
-        x: Math.floor(G.w * 0.12),
-        w: Math.max(8, Math.floor(G.w * 0.03)), // small compared to scenery
-        h: Math.max(10, Math.floor(G.h * 0.06)),
-        y: 0,
-        vy: 0,
-        jumping: false,
-        dead: false,
-        respawnTimer: 0,
-      };
-      G.ghost.y = G.groundY - G.ghost.h;
 
       G.cars = [];
       G.particles = [];
@@ -85,139 +118,53 @@ export default function Homepage() {
         G.lamps.push({ x: lx, y: G.groundY - 28, h: 18 });
       }
 
-      G.scoreFloat = 0;
-      G.deaths = 0;
+      G.time = 0;
       G.spawnTimer = 0;
       G.nextSpawn = 0.8 + Math.random() * 1.2;
-      G.time = 0;
     }
 
     initEntities();
 
-    // Ghost sprite (8-bit style) drawn from a small pixel map.
-    const ghostMap = [
-      '00111100',
-      '01111110',
-      '11111111',
-      '11111111',
-      '11111111',
-      '10111101',
-      '10011001',
-      '11000011',
-    ];
-
-    // Controls: space / up / click / touch
-    function doJump() {
-      if (G.ghost.dead) return;
-      if (!G.ghost.jumping) {
-        G.ghost.vy = -420; // px / s (logical pixels)
-        G.ghost.jumping = true;
-      }
-    }
-
-    function onKey(e) {
-      if (e.code === 'Space' || e.code === 'ArrowUp') {
-        e.preventDefault();
-        doJump();
-      }
-    }
-
-    function onPointer(e) {
-      // ignore if clicked button (it lives on top so pointer won't reach canvas), otherwise jump
-      doJump();
-    }
-
-    window.addEventListener('keydown', onKey);
-    canvas.addEventListener('pointerdown', onPointer);
-    canvas.addEventListener('touchstart', onPointer);
-
-    // Spawn cars with varied spacing and speed
     function spawnCar() {
       const carW = Math.max(8, Math.floor(G.w * (0.03 + Math.random() * 0.03)));
       const carH = Math.max(6, Math.floor(G.h * (0.03 + Math.random() * 0.02)));
       const x = G.w + carW + Math.random() * 40;
       const laneY = G.groundY - carH - 1;
-      const baseSpeed = 110 + Math.random() * 40; // px per second
-      // cars vary by a little, and scale slightly with score to increase difficulty
-      const speed = baseSpeed + Math.min(120, G.scoreFloat * 0.8);
+      const baseSpeed = 110 + Math.random() * 40;
+      const speed = baseSpeed + Math.min(120, G.time * 0.8);
       G.cars.push({ x, y: laneY, w: carW, h: carH, speed });
     }
 
-    // Particles for explosion effect
-    function spawnExplosion(cx, cy) {
-      const count = 18;
-      for (let i = 0; i < count; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = 40 + Math.random() * 200;
-        const vx = Math.cos(angle) * speed;
-        const vy = Math.sin(angle) * speed;
-        G.particles.push({ x: cx, y: cy, vx, vy, life: 0.6 + Math.random() * 0.6 });
-      }
-    }
-
-    // Update logic (dt in seconds)
+    // Update scenery
     function update(dt) {
       G.time += dt;
-      // update canvas-derived sizes
       G.w = canvas.width;
       G.h = canvas.height;
       G.groundY = Math.floor(G.h * 0.78);
-
-      // physics constants
-      const gravity = 1800; // px/s^2 (logical px)
-
-      // ghost physics
-      if (!G.ghost.dead) {
-        if (G.ghost.jumping) {
-          G.ghost.vy += gravity * dt;
-          G.ghost.y += G.ghost.vy * dt;
-          if (G.ghost.y >= G.groundY - G.ghost.h) {
-            G.ghost.y = G.groundY - G.ghost.h;
-            G.ghost.vy = 0;
-            G.ghost.jumping = false;
-          }
-        }
-      } else {
-        // respawn timer
-        G.ghost.respawnTimer -= dt;
-        if (G.ghost.respawnTimer <= 0) {
-          G.ghost.dead = false;
-          G.ghost.jumping = false;
-          G.ghost.vy = 0;
-          G.ghost.y = G.groundY - G.ghost.h;
-          // remove any cars that were overlapping the ghost to avoid instant death
-          G.cars = G.cars.filter(car => car.x > G.ghost.x + G.ghost.w + 6);
-        }
-      }
 
       // update cars
       for (let i = G.cars.length - 1; i >= 0; i--) {
         const car = G.cars[i];
         car.x -= car.speed * dt;
-        // remove if off left
         if (car.x + car.w < -20) G.cars.splice(i, 1);
       }
 
-      // spawn timer
+      // spawn cars
       G.spawnTimer += dt;
-      if (!G.ghost.dead && G.spawnTimer >= G.nextSpawn) {
+      if (G.spawnTimer >= G.nextSpawn) {
         spawnCar();
         G.spawnTimer = 0;
-        // spacing changes slightly with time
-        G.nextSpawn = 0.8 + Math.random() * 1.6 - Math.min(0.7, G.time * 0.01);
+        G.nextSpawn = 0.8 + Math.random() * 1.6 - Math.min(0.6, G.time * 0.01);
         G.nextSpawn = Math.max(0.5, G.nextSpawn);
       }
 
-      // update background buildings and recycle
+      // update buildings (slow parallax)
       const buildingSpeed = 30 + Math.min(60, G.time * 0.2);
       for (let i = G.buildings.length - 1; i >= 0; i--) {
         const b = G.buildings[i];
-        b.x -= buildingSpeed * dt * 0.25; // slow parallax
-        if (b.x + b.w < -60) {
-          G.buildings.splice(i, 1);
-        }
+        b.x -= buildingSpeed * dt * 0.25;
+        if (b.x + b.w < -60) G.buildings.splice(i, 1);
       }
-      // ensure there are enough buildings to fill
       if (G.buildings.length < Math.ceil(G.w / 40) + 6) {
         let lastX = G.buildings.length ? G.buildings[G.buildings.length - 1].x + G.buildings[G.buildings.length - 1].w + 6 : 0;
         while (lastX < G.w * 1.2) {
@@ -239,90 +186,52 @@ export default function Homepage() {
         const lx = (G.lamps.length + 1) * 60 + Math.random() * 30 + G.w;
         G.lamps.push({ x: lx, y: G.groundY - 28, h: 18 });
       }
-
-      // particles update
-      for (let i = G.particles.length - 1; i >= 0; i--) {
-        const p = G.particles[i];
-        p.life -= dt;
-        if (p.life <= 0) {
-          G.particles.splice(i, 1);
-          continue;
-        }
-        // simple physics
-        p.vy += 1000 * dt; // gravity on particles
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-      }
-
-      // score update (smooth)
-      G.scoreFloat += dt * 10; // points per second
-
-      // collision detection
-      if (!G.ghost.dead) {
-        const g = G.ghost;
-        for (const car of G.cars) {
-          if (
-            g.x < car.x + car.w - 1 &&
-            g.x + g.w - 1 > car.x &&
-            g.y < car.y + car.h - 1 &&
-            g.y + g.h - 1 > car.y
-          ) {
-            // collision!
-            G.ghost.dead = true;
-            G.ghost.respawnTimer = 0.8; // seconds until respawn
-            G.deaths += 1;
-            // spawn explosion at center of ghost
-            spawnExplosion(g.x + g.w / 2, g.y + g.h / 2);
-            break;
-          }
-        }
-      }
     }
 
-    // Draw helpers
+    // Draw scenery only
     function draw() {
-      // clear with dark grey
-      ctx.fillStyle = '#1e1e1e';
+      // background (dark)
+      ctx.fillStyle = "#1e1e1e";
       ctx.fillRect(0, 0, G.w, G.h);
 
-      // city buildings (back)
+      // buildings (back)
       for (const b of G.buildings) {
         const s = Math.min(255, Math.max(10, b.shade));
         ctx.fillStyle = `rgb(${s},${s},${s})`;
         ctx.fillRect(Math.floor(b.x), Math.floor(b.y), Math.floor(b.w), Math.floor(b.h));
-        // windows as small pixels
+        // small windows
         const winW = 2;
         for (let wx = Math.floor(b.x) + 2; wx < b.x + b.w - 2; wx += 4) {
           for (let wy = Math.floor(b.y) + 4; wy < b.y + b.h - 6; wy += 6) {
             if (Math.random() > 0.6) continue;
-            ctx.fillStyle = 'rgba(230,230,230,0.95)';
+            ctx.fillStyle = "rgba(230,230,230,0.95)";
             ctx.fillRect(wx, wy, winW, 2);
           }
         }
       }
 
-      // mid layer street lamps
+      // lamps (mid)
       for (const l of G.lamps) {
-        ctx.fillStyle = '#0e0e0e';
+        ctx.fillStyle = "#0e0e0e";
         const lx = Math.floor(l.x);
         const ly = Math.floor(l.y);
         ctx.fillRect(lx, ly, 1, l.h);
-        // lamp head
-        ctx.fillStyle = '#111';
+        ctx.fillStyle = "#111";
         ctx.fillRect(lx - 2, ly - 2, 5, 3);
       }
 
       // road
-      ctx.fillStyle = '#0b0b0b';
+      ctx.fillStyle = "#0b0b0b";
       const roadY = G.groundY;
       ctx.fillRect(0, roadY, G.w, G.h - roadY);
 
-      // road stripes (center dashed)
+      // center dashed stripes
       const stripeH = 2;
       const stripeW = Math.max(2, Math.floor(G.w * 0.03));
-      ctx.fillStyle = '#e8e8e8';
+      ctx.fillStyle = "#e8e8e8";
       const dashGap = 8;
       for (let sx = 0; sx < G.w + stripeW; sx += stripeW + dashGap) {
+        // animate stripes slightly (parallax)
         ctx.fillRect(sx + (Math.floor((G.time * 40) % (stripeW + dashGap)) * -1), roadY + Math.floor((G.h - roadY) / 2) - 1, stripeW, stripeH);
       }
 
@@ -330,68 +239,17 @@ export default function Homepage() {
       for (const car of G.cars) {
         const cx = Math.floor(car.x);
         const cy = Math.floor(car.y);
-        // body
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = "#ffffff";
         ctx.fillRect(cx, cy, Math.floor(car.w), Math.floor(car.h));
-        // windows - darker
-        ctx.fillStyle = '#a6a6a6';
+        ctx.fillStyle = "#a6a6a6";
         ctx.fillRect(cx + 2, cy + 1, Math.max(2, Math.floor(car.w / 2.6)), Math.max(1, Math.floor(car.h / 2.8)));
-        // tires
-        ctx.fillStyle = '#0b0b0b';
+        ctx.fillStyle = "#0b0b0b";
         ctx.fillRect(cx + 1, cy + car.h - 1, 2, 1);
         ctx.fillRect(cx + car.w - 3, cy + car.h - 1, 2, 1);
       }
-
-      // particles (explosion)
-      for (const p of G.particles) {
-        const alpha = Math.max(0, Math.min(1, p.life / 1.0));
-        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-        ctx.fillRect(Math.floor(p.x), Math.floor(p.y), 2, 2);
-      }
-
-      // ghost - draw as small 8-bit sprite and a soft shadow
-      const g = G.ghost;
-      if (!g.dead) {
-        // shadow
-        ctx.fillStyle = 'rgba(0,0,0,0.25)';
-        ctx.fillRect(Math.floor(g.x), Math.floor(G.groundY - 2), g.w, 1);
-
-        // draw scaled ghostMap to ghost.w / ghostMap[0].length pixels per cell
-        const mapW = ghostMap[0].length;
-        const mapH = ghostMap.length;
-        const cellW = Math.max(1, Math.floor(g.w / mapW));
-        const cellH = Math.max(1, Math.floor(g.h / mapH));
-        const startX = Math.floor(g.x - (mapW * cellW - g.w) / 2);
-        const startY = Math.floor(g.y);
-        for (let ry = 0; ry < mapH; ry++) {
-          for (let rx = 0; rx < mapW; rx++) {
-            if (ghostMap[ry][rx] === '1') {
-              ctx.fillStyle = '#ffffff';
-              ctx.fillRect(startX + rx * cellW, startY + ry * cellH, cellW, cellH);
-            }
-          }
-        }
-        // small outline pixels (single darker pixels)
-        ctx.fillStyle = '#bfbfbf';
-        ctx.fillRect(startX, startY + 1, 1, 1);
-      }
-
-      // HUD: small text top-left (score and deaths) - keep tiny and unobtrusive
-      const score = Math.floor(G.scoreFloat);
-      ctx.font = `${Math.max(8, Math.floor(G.h * 0.03))}px 'Press Start 2P', monospace`;
-      ctx.fillStyle = '#f5f5f5';
-      ctx.textBaseline = 'top';
-      ctx.fillText(`SCORE: ${score}`, 6, 6);
-      ctx.fillText(`DEATHS: ${G.deaths}`, 6, 6 + Math.max(10, Math.floor(G.h * 0.03)) + 4);
-
-      // small top-left death animation text when dead
-      if (G.ghost.dead) {
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText('BOOM!', 6, 6 + Math.max(10, Math.floor(G.h * 0.03)) * 2 + 8);
-      }
     }
 
-    // main loop with requestAnimationFrame
+    // main loop
     let last = performance.now();
     let raf = null;
     function tick(now) {
@@ -402,33 +260,171 @@ export default function Homepage() {
       draw();
       raf = requestAnimationFrame(tick);
     }
-
     raf = requestAnimationFrame(tick);
 
     // cleanup
     return () => {
-      mountedRef.current = false;
-      window.removeEventListener('resize', resize);
-      window.removeEventListener('keydown', onKey);
-      canvas.removeEventListener('pointerdown', onPointer);
-      canvas.removeEventListener('touchstart', onPointer);
+      window.removeEventListener("resize", resize);
       cancelAnimationFrame(raf);
     };
   }, []);
 
-  return (
-    <div className="game-wrapper">
-      <canvas ref={canvasRef} className="game-canvas" />
+  // ---------- form logic ----------
+  const validateEmail = (value) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(value);
+  };
 
-      <button
-        className="enter-button"
-        onClick={() => {
-          // Correct way using react-router navigation
-          navigate('/experience');
-        }}
-      >
-        Enter Portfolio
-      </button>
-    </div>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setGeneralError("");
+    setEmailError("");
+
+    if (botField) return;
+
+    if (!validateEmail(email)) {
+      setEmailError("Please enter a valid email address.");
+      return;
+    }
+
+    const templateParams = {
+      from_name: name,
+      from_email: email,
+      message,
+    };
+
+    try {
+      setIsSending(true);
+
+      const response = await emailjs.send(
+        "service_mvcfiyi",
+        "template_sf6zwsg",
+        templateParams,
+        "LEoYzPGNQYaYi-3Ma"
+      );
+
+      if (response.status === 200) {
+        setSubmitted(true);
+        setName("");
+        setEmail("");
+        setMessage("");
+      } else {
+        throw new Error("Email service returned non-200 status");
+      }
+    } catch (err) {
+      console.error("Error sending email:", err);
+      setGeneralError("Something went wrong. Please try again later.");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  return (
+    <main className={styles.root}>
+      {/* scenery canvas as background */}
+      <canvas ref={canvasRef} className={styles.bgCanvas} aria-hidden="true" />
+
+      <div className={styles.container}>
+        <h1>Landing Page</h1>
+        <section className={styles.hero} aria-label="landing profile">
+          <div className={styles.profileCard}>
+            <div className={styles.profileLeft}>
+              <img className={styles.avatar} src="/avatar1.png" alt="Sanraj — avatar" />
+
+              <div className={styles.titleWrap}>
+                <h1 className={styles.title}>Sanraj JP</h1>
+                <p className={styles.lead}>UI/UX Designer ● Front-End Developer | Year 2 @ Republic Polytechnic</p>
+              </div>
+
+              <nav className={styles.socials} aria-label="social links">
+                {SOCIALS.map((s) => (
+                  <a key={s.id} className={styles.socialButton} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}>
+                    <span className={styles.socialIcon} aria-hidden>
+                      {s.icon}
+                    </span>
+                    <span className={styles.socialLabel}>{s.label}</span>
+                  </a>
+                ))}
+              </nav>
+            </div>
+
+            <div className={styles.profileRight}>
+              <p className={styles.lead}>Ping Me — Ready to Co-Op on Something Epic?</p><br></br>
+
+              {!submitted ? (
+                <>
+                  {(generalError || isSending) && (
+                    <div role="status" aria-live="polite" className={styles.error} style={{ marginBottom: 12 }}>
+                      {generalError ? generalError : "Sending your message…"}
+                    </div>
+                  )}
+
+                  <form className={styles.form} onSubmit={handleSubmit} noValidate>
+                    <input
+                      className={styles.hp}
+                      type="text"
+                      name="company"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={botField}
+                      onChange={(e) => setBotField(e.target.value)}
+                    />
+
+                    <label className={styles.field}>
+                      <span className={styles.fieldLabel}>Name</span>
+                      <input className={styles.input} type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" required />
+                    </label>
+
+                    <label className={styles.field}>
+                      <span className={styles.fieldLabel}>Email</span>
+                      <input
+                        className={styles.input}
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        onBlur={(e) => {
+                          if (e.target.value && !validateEmail(e.target.value)) {
+                            setEmailError("Please enter a valid email address.");
+                          } else {
+                            setEmailError("");
+                          }
+                        }}
+                        placeholder="you@example.com"
+                        required
+                        aria-invalid={emailError ? "true" : "false"}
+                        aria-describedby={emailError ? "email-error" : undefined}
+                      />
+                      {emailError && (
+                        <div id="email-error" className={styles.error} role="alert">
+                          {emailError}
+                        </div>
+                      )}
+                    </label>
+
+                    <label className={styles.field}>
+                      <span className={styles.fieldLabel}>Message</span>
+                      <textarea className={styles.textarea} rows={5} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Tell me about your project or opportunity" required />
+                    </label>
+
+                    <div className={styles.formActions}>
+                      <button type="submit" className={styles.submitButton} disabled={isSending} aria-busy={isSending}>
+                        {isSending ? "Sending…" : "Send message"}
+                      </button>
+                    </div>
+                  </form>
+                </>
+              ) : (
+                <div className={styles.success} role="status">
+                  <p>Message sent — thanks! I'll get back to you soon.</p>
+                  <button className={styles.resetButton} onClick={() => setSubmitted(false)}>
+                    Send another
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
   );
 }
