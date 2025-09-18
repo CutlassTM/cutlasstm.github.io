@@ -1,10 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 :root {
-  --bg: #1e1e1e;
-  --road: #0b0b0b;
+  --bg: #050505; 
+  --road: #0d1116;     
+  --muted: #9a9a9a;
   --accent: #f5f5f5; 
-  --muted: #9a9a9a; 
+  /* --panel: #0d1116;
+  --accent-2: #7fffd4;
+  --card-border: #20262b;
+  --shadow: rgba(0,0,0,0.6); */
 }
 
 html, body, #root {
