@@ -9,7 +9,7 @@
   --card-border: #2b2b2b;
 }
 
-/* layout root */
+/* ========== LAYOUR ROOT ========== */
 .root {
   min-height: 100vh;
   background: linear-gradient(180deg, #161616, #1e1e1e);
@@ -23,7 +23,7 @@
   overflow: hidden;
 }
 
-/* background canvas sits behind everything */
+/* ========== BACKGROUND CANVAS ========== */
 .bgCanvas {
   position: fixed;
   inset: 0;
@@ -35,7 +35,7 @@
   display: block;
 }
 
-/* content container sits above canvas */
+/* ========== CONTENT CONTAINER ========== */
 .container {
   width: 100%;
   max-width: 980px;
@@ -44,7 +44,13 @@
   z-index: 2;
 }
 
-/* CARD: blocky, no border-radius */
+.container h1 {
+  font-size: 24px;
+  color: var(--accent);
+  text-shadow: 4px 4px 0 rgba(0,0,0,0.6);
+}
+
+/* ========== CARD ========== */
 .profileCard {
   display: grid;
   grid-template-columns: 320px 1fr;
@@ -64,7 +70,7 @@
   }
 }
 
-/* LEFT */
+/* ========== LEFT - CARD ========== */
 .profileLeft {
   display: flex;
   flex-direction: column;
@@ -72,17 +78,17 @@
   gap: 18px;
 }
 
-/* avatar */
+/* ========== Avatar ========== */
 .avatar {
   width: 140px;
   height: 140px;
   object-fit: cover;
   border: 4px solid var(--card-border);
-  /* background: #fff; */
+  background: #0f0f0f;
   display: block;
 }
 
-/* Title + lead: h1 left-aligned and white, p uses Lato */
+/* ========== TITLE + LEAD ==========  */
 .titleWrap {
   width: 100%;
 }
@@ -106,7 +112,7 @@
   line-height: 1.25;
 }
 
-/* Social links - blocky buttons */
+/*  ========== SOCIAL LINKS ========== */
 .socials {
   display: flex;
   flex-direction: column;
@@ -136,7 +142,7 @@
   transform: translateY(-4px);
 }
 
-/* icon + label */
+/* ========== ICON + LABEL ==========  */
 .socialIcon {
   display: inline-flex;
   width: 18px;
@@ -149,12 +155,12 @@
   font-size: 10px;
 }
 
-/* RIGHT — form */
+/* ========== RIGHT - FORM ========== */
 .profileRight {
   width: 100%;
 }
 
-/* form styles — blocky inputs */
+/* ========== FORM STYLES ========== */
 .form {
   display: grid;
   gap: 12px;
@@ -203,7 +209,7 @@
   margin-top: 6px;
 }
 
-/* submit button — 8-bit tactile */
+/* ========== SUBMIT BUTTON ========== */
 .submitButton {
   background: transparent;
   color: var(--accent);
@@ -222,7 +228,7 @@
   cursor: not-allowed;
 }
 
-/* error and success */
+/* ========== ERROR + SUCCESS ========== */
 .error {
   color: #ff6b6b;
   font-size: 11px;
@@ -249,7 +255,7 @@
   font-size: 10px;
 }
 
-/* Honeypot — visually hidden */
+/* ========== HONEYPOT - VISUALLY HIDDEN ========== */
 .hp {
   position: absolute;
   left: -9999px;
@@ -258,7 +264,7 @@
   overflow: hidden;
 }
 
-/* responsive tweaks */
+/* ========== RESPONSIVE TWEAKS ========== */
 @media (max-width: 480px) {
   .avatar {
     width: 120px;

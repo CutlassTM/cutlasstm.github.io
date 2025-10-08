@@ -101,7 +101,7 @@ export default function Homepage() {
       G.buildings = [];
       G.lamps = [];
 
-      // Create repeating building band (big scenery)
+      // Repeating building
       let bx = 0;
       while (bx < G.w * 1.5) {
         const bw = 12 + Math.floor(Math.random() * 40);
@@ -112,7 +112,7 @@ export default function Homepage() {
         bx += bw + 6 + Math.floor(Math.random() * 40);
       }
 
-      // street lamps placed across
+      // Street lamps
       for (let i = 0; i < Math.ceil(G.w / 60); i++) {
         const lx = i * 60 + 40 + Math.floor(Math.random() * 40);
         G.lamps.push({ x: lx, y: G.groundY - 28, h: 18 });
@@ -142,14 +142,14 @@ export default function Homepage() {
       G.h = canvas.height;
       G.groundY = Math.floor(G.h * 0.78);
 
-      // update cars
+      // Update cars
       for (let i = G.cars.length - 1; i >= 0; i--) {
         const car = G.cars[i];
         car.x -= car.speed * dt;
         if (car.x + car.w < -20) G.cars.splice(i, 1);
       }
 
-      // spawn cars
+      // Spawn cars
       G.spawnTimer += dt;
       if (G.spawnTimer >= G.nextSpawn) {
         spawnCar();
@@ -158,7 +158,7 @@ export default function Homepage() {
         G.nextSpawn = Math.max(0.5, G.nextSpawn);
       }
 
-      // update buildings (slow parallax)
+      // Update buildings (slow parallax)
       const buildingSpeed = 30 + Math.min(60, G.time * 0.2);
       for (let i = G.buildings.length - 1; i >= 0; i--) {
         const b = G.buildings[i];
@@ -177,7 +177,7 @@ export default function Homepage() {
         }
       }
 
-      // lamps move with background
+      // Lamps move with background
       for (let i = G.lamps.length - 1; i >= 0; i--) {
         G.lamps[i].x -= (buildingSpeed * dt * 0.65);
         if (G.lamps[i].x < -40) G.lamps.splice(i, 1);
@@ -190,16 +190,16 @@ export default function Homepage() {
 
     // Draw scenery only
     function draw() {
-      // background (dark)
+      // Background (dark)
       ctx.fillStyle = "#1e1e1e";
       ctx.fillRect(0, 0, G.w, G.h);
 
-      // buildings (back)
+      // Buildings (back)
       for (const b of G.buildings) {
         const s = Math.min(255, Math.max(10, b.shade));
         ctx.fillStyle = `rgb(${s},${s},${s})`;
         ctx.fillRect(Math.floor(b.x), Math.floor(b.y), Math.floor(b.w), Math.floor(b.h));
-        // small windows
+        // Small windows
         const winW = 2;
         for (let wx = Math.floor(b.x) + 2; wx < b.x + b.w - 2; wx += 4) {
           for (let wy = Math.floor(b.y) + 4; wy < b.y + b.h - 6; wy += 6) {
@@ -210,7 +210,7 @@ export default function Homepage() {
         }
       }
 
-      // lamps (mid)
+      // Lamps (mid)
       for (const l of G.lamps) {
         ctx.fillStyle = "#0e0e0e";
         const lx = Math.floor(l.x);
@@ -220,22 +220,22 @@ export default function Homepage() {
         ctx.fillRect(lx - 2, ly - 2, 5, 3);
       }
 
-      // road
+      // Road
       ctx.fillStyle = "#0b0b0b";
       const roadY = G.groundY;
       ctx.fillRect(0, roadY, G.w, G.h - roadY);
 
-      // center dashed stripes
+      // Center dashed stripes
       const stripeH = 2;
       const stripeW = Math.max(2, Math.floor(G.w * 0.03));
       ctx.fillStyle = "#e8e8e8";
       const dashGap = 8;
       for (let sx = 0; sx < G.w + stripeW; sx += stripeW + dashGap) {
-        // animate stripes slightly (parallax)
+        // Animate stripes slightly (parallax)
         ctx.fillRect(sx + (Math.floor((G.time * 40) % (stripeW + dashGap)) * -1), roadY + Math.floor((G.h - roadY) / 2) - 1, stripeW, stripeH);
       }
 
-      // cars (foreground)
+      // Cars (foreground)
       for (const car of G.cars) {
         const cx = Math.floor(car.x);
         const cy = Math.floor(car.y);
@@ -249,7 +249,7 @@ export default function Homepage() {
       }
     }
 
-    // main loop
+    // Main loop
     let last = performance.now();
     let raf = null;
     function tick(now) {
@@ -262,14 +262,14 @@ export default function Homepage() {
     }
     raf = requestAnimationFrame(tick);
 
-    // cleanup
+    // Cleanup
     return () => {
       window.removeEventListener("resize", resize);
       cancelAnimationFrame(raf);
     };
   }, []);
 
-  // ---------- form logic ----------
+  // ---------- Form logic ----------
   const validateEmail = (value) => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(value);
@@ -321,7 +321,7 @@ export default function Homepage() {
 
   return (
     <main className={styles.root}>
-      {/* scenery canvas as background */}
+      {/* Scenery canvas as background */}
       <canvas ref={canvasRef} className={styles.bgCanvas} aria-hidden="true" />
 
       <div className={styles.container}>
@@ -329,11 +329,11 @@ export default function Homepage() {
         <section className={styles.hero} aria-label="landing profile">
           <div className={styles.profileCard}>
             <div className={styles.profileLeft}>
-              <img className={styles.avatar} src="/avatar1.png" alt="Sanraj — avatar" />
+              <img className={styles.avatar} src="/avatar2.png" alt="Sanraj — avatar" />
 
               <div className={styles.titleWrap}>
-                <h1 className={styles.title}>Sanraj JP</h1>
-                <p className={styles.lead}>UI/UX Designer ● Front-End Developer | Year 2 @ Republic Polytechnic</p>
+                <h2 className={styles.title}>Sanraj JP</h2>
+                <p className={styles.lead}>UI/UX Designer ● Front-End Developer ● Freelancer | Year 2 @ Republic Polytechnic</p>
               </div>
 
               <nav className={styles.socials} aria-label="social links">

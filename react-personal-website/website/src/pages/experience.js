@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "./experience.module.css";
 
-/* ------------------------ Data ------------------------ */
 const ALL_PROJECTS = [
   {
     id: "p-webdev",
@@ -12,7 +11,9 @@ const ALL_PROJECTS = [
     excerpt: "WordPress build + CSS revamp with SEO improvements.",
     description: (
       <>
-        Built a custom WordPress site from scratch. Refined layout and CSS, improved accessibility and SEO, and collaborated with the client to modernize design and performance.
+        Built a custom WordPress site from scratch. Refined layout and CSS,
+        improved accessibility and SEO, and collaborated with the client to
+        modernize design and performance.
       </>
     ),
     img: "development1.png",
@@ -29,7 +30,8 @@ const ALL_PROJECTS = [
     excerpt: "Event & bidding platform for organisations and clients.",
     description: (
       <>
-        Full-stack event platform with event creation, lifecycle flows, and a bidding subsystem. Designed for usability and clear event management.
+        Full-stack event platform with event creation, lifecycle flows, and a
+        bidding subsystem. Designed for usability and clear event management.
       </>
     ),
     img: "development2.png",
@@ -57,7 +59,8 @@ const ALL_PROJECTS = [
     featured: true,
     title: "VR Puzzle Game",
     excerpt: "Immersive VR 4-piece puzzle (Vive).",
-    description: "Prototyped a VR puzzle game featuring four distinct challenges using Unity and C#, with HTC Vive integration.",
+    description:
+      "Prototyped a VR puzzle game featuring four distinct challenges using Unity and C#, with HTC Vive integration.",
     video: "https://www.youtube.com/watch?v=GMU3yksgGoc",
     tech: ["Unity", "C#", "VR"],
     role: "Game Developer",
@@ -71,10 +74,13 @@ const ALL_PROJECTS = [
     excerpt: "Watchlist app with categories, search and CRUD.",
     description: (
       <>
-        A watchlist app with category filters, search and CRUD operations. Built
-        with feedback and simple stats to improve discoverability.
-        <br />
-        <a href="https://github.com/C346-2024-Day4/lesson05-ps-CutlassTM/tree/main" target="_blank" rel="noreferrer">
+        A watchlist app with category filters, search and CRUD operations.
+        Built with feedback and simple stats to improve discoverability. <br />
+        <a
+          href="https://github.com/C346-2024-Day4/lesson05-ps-CutlassTM/tree/main"
+          target="_blank"
+          rel="noreferrer"
+        >
           Repo →
         </a>
       </>
@@ -92,9 +98,13 @@ const ALL_PROJECTS = [
     excerpt: "Dark-themed React Native app for tracking shows & films.",
     description: (
       <>
-        Watchlist tool with categories, ratings and usage statistics. Dark-theme focused UX and simple CRUD flows.
-        <br />
-        <a href="https://github.com/C346-2024-Day4/mad-miniproject-CutlassTM/tree/main" target="_blank" rel="noreferrer">
+        Watchlist tool with categories, ratings and usage statistics.
+        Dark-theme focused UX and simple CRUD flows. <br />
+        <a
+          href="https://github.com/C346-2024-Day4/mad-miniproject-CutlassTM/tree/main"
+          target="_blank"
+          rel="noreferrer"
+        >
           Repo →
         </a>
       </>
@@ -125,9 +135,13 @@ const ALL_PROJECTS = [
     excerpt: "High-fidelity Figma prototype with micro-interactions.",
     description: (
       <>
-        High-fidelity wireframes and prototype produced in Figma with emphasis on micro-interactions, accessibility and user flow.
-        <br />
-        <a href="https://www.figma.com/design/aqUJxHVrrduZsh18PkCxg5/Encita-High-fidelity-Wireframe" target="_blank" rel="noreferrer">
+        High-fidelity wireframes and prototype produced in Figma with emphasis
+        on micro-interactions, accessibility and user flow. <br />
+        <a
+          href="https://www.figma.com/design/aqUJxHVrrduZsh18PkCxg5/Encita-High-fidelity-Wireframe"
+          target="_blank"
+          rel="noreferrer"
+        >
           Figma →
         </a>
       </>
@@ -145,9 +159,13 @@ const ALL_PROJECTS = [
     excerpt: "Conversion-focused shopping UX (Figma).",
     description: (
       <>
-        Clean shopping UX prototype emphasising clear conversion paths and usable interactions.
-        <br />
-        <a href="https://www.figma.com/design/RZzgPTllxotEbRB9cpaWOa/CA3---StyleShop" target="_blank" rel="noreferrer">
+        Clean shopping UX prototype emphasising clear conversion paths and usable
+        interactions. <br />
+        <a
+          href="https://www.figma.com/design/RZzgPTllxotEbRB9cpaWOa/CA3---StyleShop"
+          target="_blank"
+          rel="noreferrer"
+        >
           Figma →
         </a>
       </>
@@ -159,7 +177,6 @@ const ALL_PROJECTS = [
   },
 ];
 
-/* ------------------------ Timeline ------------------------ */
 const TIMELINE = [
   {
     id: "t-2026",
@@ -204,7 +221,6 @@ const TIMELINE = [
   },
 ];
 
-/* ------------------------ Skills ------------------------ */
 const SKILLS = {
   Program_Languages: ["JavaScript", "TypeScript", "Python", "PHP", "C#", "HTML5"],
   Frameworks: ["React", "React Native", "Node.js", "Express", "Unity"],
@@ -218,7 +234,7 @@ function embedURL(url) {
   return url.includes("watch?v=") ? url.replace("watch?v=", "embed/") : url;
 }
 
-/* ------------------------ Icons (SVG) ------------------------ */
+/* ------------------------ Icons ------------------------ */
 function IconFor(name, props = {}) {
   switch (name) {
     case "code":
@@ -251,6 +267,7 @@ function IconFor(name, props = {}) {
 /* ------------------------ TimelineVertical component ------------------------ */
 function TimelineVertical({ events = [], onOpenProject = null }) {
   const [activeId, setActiveId] = useState(events[0]?.id ?? null);
+
   useEffect(() => {
     if (!activeId && events.length) setActiveId(events[0].id);
   }, [events, activeId]);
@@ -262,7 +279,6 @@ function TimelineVertical({ events = [], onOpenProject = null }) {
   return (
     <section className={styles.timelineVertical} aria-label="Work timeline">
       <h2 className={styles.sectionTitle}>Progression</h2>
-
       <ol className={styles.timelineList}>
         {events.map((ev, i) => {
           const side = i % 2 === 0 ? "left" : "right";
@@ -271,7 +287,8 @@ function TimelineVertical({ events = [], onOpenProject = null }) {
           return (
             <li
               key={ev.id}
-              className={`${styles.timelineItem} ${side === "left" ? styles.timelineItemLeft : styles.timelineItemRight}`}
+              className={`${styles.timelineItem} ${side === "left" ? styles.timelineItemLeft : styles.timelineItemRight
+                }`}
             >
               <div
                 className={styles.timelineContent}
@@ -285,19 +302,18 @@ function TimelineVertical({ events = [], onOpenProject = null }) {
                   <div className={styles.cardTop}>
                     <span className={styles.cardDate}>{displayDate}</span>
                   </div>
-
                   <h3 id={`${ev.id}-title`} className={styles.cardTitle}>
                     {ev.title}
                   </h3>
                   <div className={styles.cardOrg}>{ev.org}</div>
-
-                  <div id={`${ev.id}-content`} className={`${styles.cardBody} ${isActive ? styles.cardBodyExpanded : ""}`}>
-                    <p>{ev.desc}</p>
-                    {ev.more && <div className={styles.cardMore}>{ev.more}</div>}
-                  </div>
+                  {isActive && (
+                    <div id={`${ev.id}-content`} className={styles.cardBody}>
+                      <p>{ev.desc}</p>
+                      {ev.more && <div className={styles.cardMore}>{ev.more}</div>}
+                    </div>
+                  )}
                 </div>
               </div>
-
               <div className={styles.timelineNodeWrap}>
                 <button
                   className={`${styles.timelineNodeBtn} ${isActive ? styles.timelineNodeBtnActive : ""}`}
@@ -327,8 +343,12 @@ function TimelineVertical({ events = [], onOpenProject = null }) {
   );
 }
 
-/* ------------------------ Main Experience component ------------------------ */
-export default function Experience() {
+/* ------------------------ MAIN Homepage (canvas + inlined Experience) ------------------------ */
+export default function Homepage() {
+  // Canvas ref
+  const canvasRef = useRef(null);
+
+  // Experience state (inlined)
   const [activeCategory, setActiveCategory] = useState("development");
   const [query, setQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState(null);
@@ -341,19 +361,27 @@ export default function Experience() {
       return [];
     }
   });
-
   const closeRef = useRef(null);
   const blipRef = useRef(null);
 
+  // audio blip init
   useEffect(() => {
-    blipRef.current = new Audio("/audio/blip.wav");
-    blipRef.current.volume = 0.22;
+    try {
+      blipRef.current = new Audio("/audio/blip.wav");
+      blipRef.current.volume = 0.22;
+    } catch (e) {
+      blipRef.current = null;
+    }
   }, []);
 
+  // persist favorites
   useEffect(() => {
-    localStorage.setItem("xp_favs_v1", JSON.stringify(favorites));
+    try {
+      localStorage.setItem("xp_favs_v1", JSON.stringify(favorites));
+    } catch { }
   }, [favorites]);
 
+  // keyboard: close modal on Escape
   useEffect(() => {
     function onKey(e) {
       if (e.key === "Escape") setModal(null);
@@ -362,6 +390,7 @@ export default function Experience() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // focus close button when modal opens
   useEffect(() => {
     if (modal) setTimeout(() => closeRef.current?.focus(), 60);
   }, [modal]);
@@ -370,7 +399,8 @@ export default function Experience() {
 
   const filteredProjects = ALL_PROJECTS.filter((p) => {
     const matchCategory = activeCategory === "all" ? true : p.category === activeCategory;
-    const matchQuery = query.trim() === "" || (p.title + p.excerpt).toLowerCase().includes(query.toLowerCase());
+    const matchQuery =
+      query.trim() === "" || (p.title + p.excerpt).toLowerCase().includes(query.toLowerCase());
     const matchTag = !selectedTag || (p.tech && p.tech.includes(selectedTag));
     return matchCategory && matchQuery && matchTag;
   });
@@ -392,210 +422,470 @@ export default function Experience() {
     if (proj) setModal(proj);
   }
 
+  /* ------------------------ Canvas effect ------------------------ */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    const PIXEL = 4;
+
+    function resize() {
+      const cssW = window.innerWidth;
+      const cssH = window.innerHeight;
+      canvas.style.width = cssW + "px";
+      canvas.style.height = cssH + "px";
+      canvas.width = Math.max(320, Math.floor(cssW / PIXEL));
+      canvas.height = Math.max(200, Math.floor(cssH / PIXEL));
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const G = {
+      w: canvas.width,
+      h: canvas.height,
+      groundY: Math.floor(canvas.height * 0.78),
+      cars: [],
+      buildings: [],
+      lamps: [],
+      particles: [],
+      time: 0,
+      spawnTimer: 0,
+      nextSpawn: 0.8 + Math.random() * 1.2,
+    };
+
+    function initEntities() {
+      G.w = canvas.width;
+      G.h = canvas.height;
+      G.groundY = Math.floor(G.h * 0.78);
+      G.cars = [];
+      G.particles = [];
+      G.buildings = [];
+      G.lamps = [];
+
+      let bx = 0;
+      while (bx < G.w * 1.5) {
+        const bw = 12 + Math.floor(Math.random() * 40);
+        const bh = Math.floor(G.h * (0.35 + Math.random() * 0.5));
+        const by = G.groundY - bh - Math.floor(G.h * 0.03);
+        const shade = 40 + Math.floor(Math.random() * 40);
+        G.buildings.push({ x: bx, w: bw, h: bh, y: by, shade });
+        bx += bw + 6 + Math.floor(Math.random() * 40);
+      }
+
+      for (let i = 0; i < Math.ceil(G.w / 60); i++) {
+        const lx = i * 60 + 40 + Math.floor(Math.random() * 40);
+        G.lamps.push({ x: lx, y: G.groundY - 28, h: 18 });
+      }
+
+      G.time = 0;
+      G.spawnTimer = 0;
+      G.nextSpawn = 0.8 + Math.random() * 1.2;
+    }
+    initEntities();
+
+    function spawnCar() {
+      const carW = Math.max(8, Math.floor(G.w * (0.03 + Math.random() * 0.03)));
+      const carH = Math.max(6, Math.floor(G.h * (0.03 + Math.random() * 0.02)));
+      const x = G.w + carW + Math.random() * 40;
+      const laneY = G.groundY - carH - 1;
+      const baseSpeed = 110 + Math.random() * 40;
+      const speed = baseSpeed + Math.min(120, G.time * 0.8);
+      G.cars.push({ x, y: laneY, w: carW, h: carH, speed });
+    }
+
+    function update(dt) {
+      G.time += dt;
+      G.w = canvas.width;
+      G.h = canvas.height;
+      G.groundY = Math.floor(G.h * 0.78);
+
+      for (let i = G.cars.length - 1; i >= 0; i--) {
+        const car = G.cars[i];
+        car.x -= car.speed * dt;
+        if (car.x + car.w < -20) G.cars.splice(i, 1);
+      }
+
+      G.spawnTimer += dt;
+      if (G.spawnTimer >= G.nextSpawn) {
+        spawnCar();
+        G.spawnTimer = 0;
+        G.nextSpawn = 0.8 + Math.random() * 1.6 - Math.min(0.6, G.time * 0.01);
+        G.nextSpawn = Math.max(0.5, G.nextSpawn);
+      }
+
+      const buildingSpeed = 30 + Math.min(60, G.time * 0.2);
+      for (let i = G.buildings.length - 1; i >= 0; i--) {
+        const b = G.buildings[i];
+        b.x -= buildingSpeed * dt * 0.25;
+        if (b.x + b.w < -60) G.buildings.splice(i, 1);
+      }
+      if (G.buildings.length < Math.ceil(G.w / 40) + 6) {
+        let lastX = G.buildings.length ? G.buildings[G.buildings.length - 1].x + G.buildings[G.buildings.length - 1].w + 6 : 0;
+        while (lastX < G.w * 1.2) {
+          const bw = 12 + Math.floor(Math.random() * 40);
+          const bh = Math.floor(G.h * (0.35 + Math.random() * 0.5));
+          const by = G.groundY - bh - Math.floor(G.h * 0.03);
+          const shade = 40 + Math.floor(Math.random() * 40);
+          G.buildings.push({ x: lastX, w: bw, h: bh, y: by, shade });
+          lastX += bw + 6 + Math.floor(Math.random() * 40);
+        }
+      }
+
+      for (let i = G.lamps.length - 1; i >= 0; i--) {
+        G.lamps[i].x -= buildingSpeed * dt * 0.65;
+        if (G.lamps[i].x < -40) G.lamps.splice(i, 1);
+      }
+      while (G.lamps.length < Math.ceil(G.w / 60) + 2) {
+        const lx = (G.lamps.length + 1) * 60 + Math.random() * 30 + G.w;
+        G.lamps.push({ x: lx, y: G.groundY - 28, h: 18 });
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = "#1e1e1e";
+      ctx.fillRect(0, 0, G.w, G.h);
+
+      for (const b of G.buildings) {
+        const s = Math.min(255, Math.max(10, b.shade));
+        ctx.fillStyle = `rgb(${s},${s},${s})`;
+        ctx.fillRect(Math.floor(b.x), Math.floor(b.y), Math.floor(b.w), Math.floor(b.h));
+
+        const winW = 2;
+        for (let wx = Math.floor(b.x) + 2; wx < b.x + b.w - 2; wx += 4) {
+          for (let wy = Math.floor(b.y) + 4; wy < b.y + b.h - 6; wy += 6) {
+            if (Math.random() > 0.6) continue;
+            ctx.fillStyle = "rgba(230,230,230,0.95)";
+            ctx.fillRect(wx, wy, winW, 2);
+          }
+        }
+      }
+
+      for (const l of G.lamps) {
+        ctx.fillStyle = "#0e0e0e";
+        const lx = Math.floor(l.x);
+        const ly = Math.floor(l.y);
+        ctx.fillRect(lx, ly, 1, l.h);
+        ctx.fillStyle = "#111";
+        ctx.fillRect(lx - 2, ly - 2, 5, 3);
+      }
+
+      ctx.fillStyle = "#0b0b0b";
+      const roadY = G.groundY;
+      ctx.fillRect(0, roadY, G.w, G.h - roadY);
+
+      const stripeH = 2;
+      const stripeW = Math.max(2, Math.floor(G.w * 0.03));
+      ctx.fillStyle = "#e8e8e8";
+      const dashGap = 8;
+      for (let sx = 0; sx < G.w + stripeW; sx += stripeW + dashGap) {
+        ctx.fillRect(
+          sx + Math.floor((G.time * 40) % (stripeW + dashGap)) * -1,
+          roadY + Math.floor((G.h - roadY) / 2) - 1,
+          stripeW,
+          stripeH
+        );
+      }
+
+      for (const car of G.cars) {
+        const cx = Math.floor(car.x);
+        const cy = Math.floor(car.y);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(cx, cy, Math.floor(car.w), Math.floor(car.h));
+        ctx.fillStyle = "#a6a6a6";
+        ctx.fillRect(cx + 2, cy + 1, Math.max(2, Math.floor(car.w / 2.6)), Math.max(1, Math.floor(car.h / 2.8)));
+        ctx.fillStyle = "#0b0b0b";
+        ctx.fillRect(cx + 1, cy + car.h - 1, 2, 1);
+        ctx.fillRect(cx + car.w - 3, cy + car.h - 1, 2, 1);
+      }
+    }
+
+    let last = performance.now();
+    let raf = null;
+    function tick(now) {
+      const dtMS = now - last;
+      last = now;
+      const dt = Math.min(0.05, dtMS / 1000);
+      update(dt);
+      draw();
+      raf = requestAnimationFrame(tick);
+    }
+    raf = requestAnimationFrame(tick);
+
+    return () => {
+      window.removeEventListener("resize", resize);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
-    <div className={`${styles.xpRoot} ${modal ? styles.xpModalOpen : ""}`}>
-      <div className={styles.xpContainer}>
+    <main className={styles.root}>
+      <canvas ref={canvasRef} className={styles.bgCanvas} aria-hidden="true" />
 
-        <header className={styles.xpHero}>
-          <div className={styles.xpHeroInner}>
-            <div className={styles.xpHeroLeft}>
-              <h1 className={styles.xpName}>Experience</h1>
-              <p className={styles.xpLead}>Featuring my projects, internships, skillset and journey.</p>
-            </div>
+      <div className={styles.container}>
+        <h1>Exprience</h1>
 
-            <div>
-              <div className={styles.xpSprite}>
-                <img src="avatar1.png" alt="Profile avatar" />
+        <section className={styles.hero}>
+          <div className={`${styles.xpRoot} ${modal ? styles.xpModalOpen : ""}`}>
+            <div className={styles.xpContainer}>
+              <header className={styles.xpHero}>
+                <div className={styles.xpHeroInner}>
+
+                  <div className={styles.xpHeroLeft}>
+                    <h2 className={styles.xpName}>Sanraj JP</h2>
+                    <p className={styles.xpLead}>UI/UX Designer ● Front-End Developer ● Freelancer | Year 2 @ Republic Polytechnic</p>
+                    <p className={styles.xpLead}>Featuring my projects, internships, skillset and journey.</p>
+                  </div>
+
+                  <div>
+                    <div className={styles.xpSprite}>
+                      <img src="avatar3.png" alt="Profile avatar" />
+                    </div>
+                  </div>
+
+                </div>
+              </header>
+
+              {/* Controls + Search */}
+              <div className={styles.controlsRow}>
+                <div className={styles.categoryTabs} role="tablist" aria-label="Project categories">
+                  {["development", "design"].map((cat) => (
+                    <button
+                      key={cat}
+                      className={`${styles.tab} ${activeCategory === cat ? styles.tabActive : ""}`}
+                      onClick={() => {
+                        setActiveCategory(cat);
+                        setSelectedTag(null);
+                      }}
+                    >
+                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                    </button>
+                  ))}
+                  <button
+                    className={`${styles.tab} ${activeCategory === "all" ? styles.tabActive : ""}`}
+                    onClick={() => {
+                      setActiveCategory("all");
+                      setSelectedTag(null);
+                    }}
+                  >
+                    All
+                  </button>
+                </div>
+
+                <div className={styles.searchAndTags}>
+                  <input
+                    className={styles.search}
+                    placeholder="Search projects…"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    aria-label="Search projects"
+                  />
+                  <div className={styles.tagsRow} role="toolbar" aria-label="Filter by technology">
+                    <button
+                      className={`${styles.tag} ${selectedTag === null ? styles.tagActive : ""}`}
+                      onClick={() => setSelectedTag(null)}
+                    >
+                      All
+                    </button>
+                    {allTags.map((t) => (
+                      <button
+                        key={t}
+                        className={`${styles.tag} ${selectedTag === t ? styles.tagActive : ""}`}
+                        onClick={() => setSelectedTag((prev) => (prev === t ? null : t))}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </header>
 
-        {/* Controls + Search */}
-        <div className={styles.controlsRow}>
-          <div className={styles.categoryTabs} role="tablist" aria-label="Project categories">
-            {["development", "design"].map((cat) => (
-              <button
-                key={cat}
-                className={`${styles.tab} ${activeCategory === cat ? styles.tabActive : ""}`}
-                onClick={() => {
-                  setActiveCategory(cat);
-                  setSelectedTag(null);
-                }}
-              >
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </button>
-            ))}
+              {/* Projects Grid + Side Panel */}
+              <main className={styles.projectsMain}>
+                <div className={styles.projectsGrid}>
+                  {filteredProjects.map((p) => (
+                    <article
+                      key={p.id}
+                      className={styles.projectCard}
+                      tabIndex={0}
+                      role="button"
+                      onClick={() => setModal(p)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") setModal(p);
+                      }}
+                    >
+                      <div className={styles.mediaWrap}>
+                        {p.video ? (
+                          <iframe
+                            title={p.title}
+                            src={embedURL(p.video)}
+                            frameBorder="0"
+                            allowFullScreen
+                          />
+                        ) : (
+                          <img src={p.img} alt={p.title} />
+                        )}
+                      </div>
 
-            <button
-              className={`${styles.tab} ${activeCategory === "all" ? styles.tabActive : ""}`}
-              onClick={() => {
-                setActiveCategory("all");
-                setSelectedTag(null);
-              }}
-            >
-              All
-            </button>
-          </div>
+                      <div className={styles.cardBody}>
+                        <h3 className={styles.cardTitle}>{p.title}</h3>
+                        <p className={styles.cardDesc}>{p.excerpt}</p>
 
-          <div className={styles.searchAndTags}>
-            <input
-              className={styles.search}
-              placeholder="Search projects…"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              aria-label="Search projects"
-            />
+                        <div className={styles.cardFooter}>
+                          <div>
+                            {p.tech?.slice(0, 3).map((t) => (
+                              <span key={t} className={styles.badge}>
+                                {t}
+                              </span>
+                            ))}
+                          </div>
 
-            <div className={styles.tagsRow} role="toolbar" aria-label="Filter by technology">
-              <button className={`${styles.tag} ${selectedTag === null ? styles.tagActive : ""}`} onClick={() => setSelectedTag(null)}>
-                All
-              </button>
-              {allTags.map((t) => (
-                <button key={t} className={`${styles.tag} ${selectedTag === t ? styles.tagActive : ""}`} onClick={() => setSelectedTag((prev) => (prev === t ? null : t))}>
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+                          <div className={styles.cardActions}>
+                            <button
+                              className={`${styles.fav} ${favorites.includes(p.id) ? styles.favActive : ""}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleFavorite(p.id);
+                              }}
+                              aria-pressed={favorites.includes(p.id)}
+                              aria-label={favorites.includes(p.id) ? "Unfavorite project" : "Add project to favorites"}
+                            >
+                              ♥
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
 
-        {/* Projects Grid + Side Panel */}
-        <main className={styles.projectsMain}>
-          <div className={styles.projectsGrid}>
-            {filteredProjects.map((p) => (
-              <article
-                key={p.id}
-                className={styles.projectCard}
-                tabIndex={0}
-                role="button"
-                onClick={() => setModal(p)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") setModal(p);
-                }}
-              >
-                <div className={styles.mediaWrap}>
-                  {p.video ? (
-                    <iframe title={p.title} src={embedURL(p.video)} frameBorder="0" allowFullScreen />
-                  ) : (
-                    <img src={p.img} alt={p.title} />
+                  {filteredProjects.length === 0 && (
+                    <div className={styles.noResults}>No projects found. Try resetting filters or search.</div>
                   )}
                 </div>
 
-                <div className={styles.cardBody}>
-                  <h3 className={styles.cardTitle}>{p.title}</h3>
-                  <p className={styles.cardDesc}>{p.excerpt}</p>
+                <aside className={styles.sidePanel}>
+                  <section>
+                    <h3 className={styles.sideTitle}>Skills</h3>
+                    <br />
+                    {Object.entries(SKILLS).map(([group, list]) => (
+                      <div key={group} className={styles.skillGroup}>
+                        <h4>{group.replace(/_/g, " ")}</h4>
+                        <div className={styles.skillList}>
+                          {list.map((s) => (
+                            <span key={s} className={styles.skillPill}>
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                        <br />
+                      </div>
+                    ))}
+                  </section>
 
-                  <div className={styles.cardFooter}>
-                    <div>
-                      {p.tech?.slice(0, 3).map((t) => (
-                        <span key={t} className={styles.badge}>
-                          {t}
-                        </span>
-                      ))}
+                  <section style={{ marginTop: 12 }}>
+                    <h3 className={styles.sideTitle}>Favorites</h3>
+                    <div className={styles.favList}>
+                      {favorites.length === 0 && <p className={styles.muted}>No favorites yet — click ♥ on projects to save.</p>}
+                      {favorites.map((fid) => {
+                        const proj = ALL_PROJECTS.find((p) => p.id === fid);
+                        if (!proj) return null;
+                        return (
+                          <div key={fid} className={styles.favItem} onClick={() => setModal(proj)} role="button" tabIndex={0}>
+                            <img src={proj.img || "black_bg.png"} alt={proj.title} />
+                            <div className={styles.favMeta}>
+                              <strong>{proj.title}</strong>
+                              <small>
+                                {proj.role} • {proj.year}
+                              </small>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </section>
+                </aside>
+              </main>
+
+              {/* Timeline */}
+              <TimelineVertical events={TIMELINE} onOpenProject={(pid) => openProjectModalById(pid)} />
+              <br />
+
+              {/* Modal */}
+              {modal && (
+                <div className={styles.modalOverlay} onClick={() => setModal(null)}>
+                  <div
+                    className={styles.modalCard}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={`Project details ${modal.title}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button ref={closeRef} className={styles.modalClose} onClick={() => setModal(null)} aria-label="Close dialog">
+                      ✖
+                    </button>
+
+                    <div className={styles.modalLeft}>
+                      <div className={styles.modalMedia}>
+                        {modal.video ? (
+                          <div className={styles.embedWrapper}>
+                            <iframe title={modal.title} src={embedURL(modal.video)} frameBorder="0" allowFullScreen />
+                          </div>
+                        ) : (
+                          <img src={modal.img || "black_bg.png"} alt={modal.title} />
+                        )}
+                      </div>
                     </div>
 
-                    <div className={styles.cardActions}>
-                      <button
-                        className={`${styles.fav} ${favorites.includes(p.id) ? styles.favActive : ""}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleFavorite(p.id);
-                        }}
-                        aria-pressed={favorites.includes(p.id)}
-                        aria-label={favorites.includes(p.id) ? "Unfavorite project" : "Add project to favorites"}
-                      >
-                        ♥
-                      </button>
+                    <div className={styles.modalRight}>
+                      <h1 className={styles.modalTitle}>{modal.title}</h1>
+                      <p className={styles.modalMeta}>
+                        {modal.role} • {modal.year}
+                      </p>
+                      <div className={styles.modalDesc}>{modal.description}</div>
+                      <div className={styles.modalTech}>
+                        {modal.tech?.map((t) => (
+                          <span key={t} className={styles.techTag}>
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className={styles.modalActions}>
+                        {modal.live && (
+                          <a className={styles.btn} href={modal.live} target="_blank" rel="noreferrer">
+                            View Live
+                          </a>
+                        )}
+                        <button
+                          className={styles.btn}
+                          onClick={() => {
+                            toggleFavorite(modal.id);
+                          }}
+                          aria-pressed={favorites.includes(modal.id)}
+                        >
+                          {favorites.includes(modal.id) ? "Unfavorite" : "Add to favorites"}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </article>
-            ))}
+              )}
 
-            {filteredProjects.length === 0 && <div className={styles.noResults}>No projects found. Try resetting filters or search.</div>}
-          </div>
-
-          <aside className={styles.sidePanel}>
-            <section>
-              <h3 className={styles.sideTitle}>Skills</h3><br></br>
-              {Object.entries(SKILLS).map(([group, list]) => (
-                <div key={group} className={styles.skillGroup}>
-                  <h4>{group.replace(/_/g, " ")}</h4>
-                  <div className={styles.skillList}>
-                    {list.map((s) => (
-                      <span key={s} className={styles.skillPill}>
-                        {s}
-                      </span>
-                    ))}
-                  </div><br></br>
+              {/* Footer CTA */}
+              <footer className={styles.xpFooter}>
+                <div className={styles.footerActions}>
+                  <a className={`${styles.btn} ${styles.btnResume}`} href="/Resume.pdf" download>
+                    Download Resume
+                  </a>
+                  <Link className={`${styles.btn} ${styles.btnContact}`} to="/home">
+                    Contact
+                  </Link>
                 </div>
-              ))}
-            </section>
-
-            <section style={{ marginTop: 12 }}>
-              <h3 className={styles.sideTitle}>Favorites</h3>
-              <div className={styles.favList}>
-                {favorites.length === 0 && <p className={styles.muted}>No favorites yet — click ♥ on projects to save.</p>}
-                {favorites.map((fid) => {
-                  const proj = ALL_PROJECTS.find((p) => p.id === fid);
-                  if (!proj) return null;
-                  return (
-                    <div key={fid} className={styles.favItem} onClick={() => setModal(proj)} role="button" tabIndex={0}>
-                      <img src={proj.img || "black_bg.png"} alt={proj.title} />
-                      <div className={styles.favMeta}>
-                        <strong>{proj.title}</strong>
-                        <small>{proj.role} • {proj.year}</small>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          </aside>
-        </main>
-
-        {/* Timeline */}
-        <TimelineVertical events={TIMELINE} onOpenProject={(pid) => openProjectModalById(pid)} /><br></br>
-
-        {/* Modal */}
-        {modal && (
-          <div className={styles.modalOverlay} onClick={() => setModal(null)}>
-            <div className={styles.modalCard} role="dialog" aria-modal="true" aria-label={`Project details ${modal.title}`} onClick={(e) => e.stopPropagation()}>
-              <button ref={closeRef} className={styles.modalClose} onClick={() => setModal(null)} aria-label="Close dialog">✖</button>
-
-              <div className={styles.modalLeft}>
-                <div className={styles.modalMedia}>
-                  {modal.video ? <div className={styles.embedWrapper}><iframe title={modal.title} src={embedURL(modal.video)} frameBorder="0" allowFullScreen /></div> : <img src={modal.img || "black_bg.png"} alt={modal.title} />}
-                </div>
-              </div>
-
-              <div className={styles.modalRight}>
-                <h1 className={styles.modalTitle}>{modal.title}</h1>
-                <p className={styles.modalMeta}>{modal.role} • {modal.year}</p>
-                <div className={styles.modalDesc}>{modal.description}</div>
-                <div className={styles.modalTech}>
-                  {modal.tech?.map((t) => <span key={t} className={styles.techTag}>{t}</span>)}
-                </div>
-
-                <div className={styles.modalActions}>
-                  {modal.live && <a className={styles.btn} href={modal.live} target="_blank" rel="noreferrer">View Live</a>}
-                  <button className={styles.btn} onClick={() => { toggleFavorite(modal.id); }} aria-pressed={favorites.includes(modal.id)}>{favorites.includes(modal.id) ? 'Unfavorite' : 'Add to favorites'}</button>
-                </div>
-              </div>
+              </footer>
             </div>
           </div>
-        )}
-
-        {/* Footer CTA */}
-        <footer className={styles.xpFooter}>
-          <div className={styles.footerActions}>
-            <a className={`${styles.btn} ${styles.btnResume}`} href="/Resume.pdf" download>Download Resume</a>
-            <Link className={`${styles.btn} ${styles.btnContact}`} to="/home">Contact</Link>
-          </div>
-        </footer>
-
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
