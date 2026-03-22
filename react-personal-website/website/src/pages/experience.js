@@ -185,7 +185,7 @@ export default function Portfolio() {
                   <a href="/Resume.pdf" className={styles.idActionBtn} download>
                     <Icons.FileText /> Resume
                   </a>
-                  <Link to="/contact" className={styles.idActionBtn}>
+                  <Link to="/Home" className={styles.idActionBtn}>
                     <Icons.Phone /> Contact
                   </Link>
                 </div>
@@ -233,7 +233,7 @@ export default function Portfolio() {
               </div>
               <div className={styles.collapsedIcons}>
                 <a href="/Resume.pdf" download className={styles.iconBtn} title="Download Resume"><Icons.FileText /></a>
-                <Link to="/contact" className={styles.iconBtn} title="Contact"><Icons.Phone /></Link>
+                <Link to="/Home" className={styles.iconBtn} title="Contact"><Icons.Phone /></Link>
               </div>
             </div>
           </div>
