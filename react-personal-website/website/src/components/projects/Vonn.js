@@ -10,7 +10,7 @@ export default function Vonn() {
       year="2023"
       type="WordPress Development"
       themeColor="var(--color-web)"
-      heroImg="/Vonn.png"
+      heroImg="/vonn.png"
       video="#"
       tech={["WordPress", "HTML5", "CSS3", "SEO Optimization", "UI/UX Design"]}
       liveLink="https://vonn.sg/"

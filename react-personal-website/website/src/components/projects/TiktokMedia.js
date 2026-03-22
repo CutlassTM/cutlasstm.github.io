@@ -10,7 +10,7 @@ export default function TikTokMedia() {
       year="Active"
       type="Content & Media"
       themeColor="var(--color-content)"
-      heroImg="/Tiktok.JPG"
+      heroImg="/tiktok.JPG"
       video="#"
       tech={["After Effects", "Premiere Pro", "CapCut", "Topaz Video AI"]}
       liveLink="https://www.tiktok.com/@nuusanraj"

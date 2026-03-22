@@ -10,7 +10,7 @@ export default function KKHRoster() {
       year="2026"
       type="Full-Stack Development"
       themeColor="var(--color-fullstack)"
-      heroImg="/KKHRosterApp.JPG"
+      heroImg="/kkh.JPG"
       video="#"
       tech={["React", "Node", "Express", "MySQL", "Render", "Clever Cloud", "Figma", "GitHub"]}
       liveLink="https://kkh-rosters-application-fyp-republic.onrender.com/login"
