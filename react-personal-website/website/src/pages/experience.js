@@ -22,9 +22,9 @@ const Icons = {
 };
 
 const PROJECT_REGISTRY = {
-  "p-kkh": { component: KKHRoster, meta: { id: "p-kkh", title: "KKH Roster App", labelType: "Full-Stack Development", img: "/KKHRosterApp.jpg" } },
-  "p-vonn": { component: Vonn, meta: { id: "p-vonn", title: "Vonn Sg", labelType: "WordPress Development", img: "/Vonn.png" } },
-  "p-tiktok": { component: TiktokMedia, meta: { id: "p-tiktok", title: "TikTok Media", labelType: "Content & Media", img: "/Tiktok.jpg" } },
+  "p-kkh": { component: KKHRoster, meta: { id: "p-kkh", title: "KKH Roster App", labelType: "Full-Stack Development", img: "/kkh.JPG" } },
+  "p-vonn": { component: Vonn, meta: { id: "p-vonn", title: "Vonn Sg", labelType: "WordPress Development", img: "/vonn.png" } },
+  "p-tiktok": { component: TiktokMedia, meta: { id: "p-tiktok", title: "TikTok Media", labelType: "Content & Media", img: "/tiktok.JPG" } },
   // "p-placeholder": { component: ProjectPlaceHolder, meta: { id: "p-placeholder", title: "Project Placeholder", labelType: "Placeholder", img: "/PlaceholderImage.jpg" } },
 };
 
