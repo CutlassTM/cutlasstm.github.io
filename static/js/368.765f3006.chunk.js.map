@@ -1,0 +1,1 @@
+{"version":3,"file":"static/js/368.765f3006.chunk.js","mappings":"kJAEA,MAOA,EAPgBA,KAEZC,EAAAA,EAAAA,KAAAC,EAAAA,SAAA,G","sources":["pages/contact.js"],"sourcesContent":["import React from 'react';\r\n\r\nconst Contact = () => {\r\n  return (\r\n    <>\r\n    </>\r\n  );\r\n};\r\n\r\nexport default Contact;"],"names":["Contact","_jsx","_Fragment"],"sourceRoot":""}

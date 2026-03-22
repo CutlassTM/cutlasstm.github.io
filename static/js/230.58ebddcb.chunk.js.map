@@ -1,0 +1,1 @@
+{"version":3,"file":"static/js/230.58ebddcb.chunk.js","mappings":"kJAEA,MAOA,EAPaA,KAETC,EAAAA,EAAAA,KAAAC,EAAAA,SAAA,G","sources":["pages/work.js"],"sourcesContent":["import React from \"react\";\r\n\r\nconst Work = () => {\r\n  return (\r\n    <>\r\n    </>\r\n  );\r\n};\r\n\r\nexport default Work;\r\n"],"names":["Work","_jsx","_Fragment"],"sourceRoot":""}
