@@ -1,9 +1,10 @@
 import React from 'react';
-import './contact.module.css';
 
-export default function Homepage() {
+const Contact = () => {
   return (
     <>
     </>
   );
 };
+
+export default Contact;
